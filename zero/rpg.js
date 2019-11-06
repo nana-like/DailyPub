@@ -2,14 +2,15 @@
 
   - 캐릭터의 스테이터스는 다음과 같다.
     - 이름
-    - HP
+    - HP: (레벨*50) + (레벨*10)
     - 레벨: 레벨이 증가하면 능력치가 증가한다.
-    - 공격력: 레벨*50 + 직업 보정 20/10/0%
+    - 공격력: 레벨*30 + 직업 보정 20/10/0%
     - 방어력: 레벨*50 + 직업 보정 20/10/0%
-    - 행운: 레벨*50 + 직업 보정 20/10/0%
-    - 경험치: 플레이어만. 100 + 현재레벨*20 만큼 모이면 레벨업.
+    - 행운: 레벨*20 + 직업 보정 20/10/0%
+    - 경험치: 플레이어만. 50 + 현재레벨*80 만큼 모이면 레벨업.
     - 직업: 플레이어만. 마법사(0, 공격력 위주), 전사(1, 방어력 위주), 도적(2, 행운 위주)
-    - 보상: 몬스터만. 5~30+(레벨*20)%의 경험치와 0~70+(레벨*10)만큼의 골드를 준다.
+    - 보상: 몬스터만. 5~30+(레벨*20)의 경험치와 10~50+(레벨*10)만큼의 골드를 준다.
+    - 소지금 : 플레이어만.
   
   - 데미지 산출은 (공격력±10% - 방어력±5%) * 2 이다.
   - 크리티컬 확률은 2*(공격자 행운 - 방어자 행운)%이다. 크리티컬이 발생하면 최종 데미지는 두 배가 된다.
@@ -51,35 +52,56 @@
 
  */
 
+
+var getRandom = function (min, max) {
+  min = Math.ceil(min) || 0;
+  max = Math.floor(max) || 100;
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+
+var ctrl = {
+  levUpVal: {
+    hp: [50, 10], //(레벨*50) + (레벨*10)
+    atk: 30, //(레벨*30) + 보정
+    def: 40, //(레벨*40) + 보정
+    luk: 10 //(레벨*10) + 보정
+  },
+  jobBonus: [10, 5, 0]
+}
+
+console.log((ctrl.levUpVal.hp[0]))
+
 var log = function (msg) {
   var p = document.createElement("p");
   p.innerHTML = msg;
   document.getElementById("log").appendChild(p);
 }
 
-var Character = function (name, hp, level, atk, def, luk) {
+var Character = function (name, level, hp, atk, def, luk) {
   this.name = name;
-  this.hp = hp || 100;
   this.level = level || 1;
-  this.atk = atk || 30;
-  this.def = def || 5;
-  this.luk = luk || 15;
+  this.hp = hp || ((this.level * ctrl.levUpVal.hp[0]) + (this.level * ctrl.levUpVal.hp[1]));
+  this.atk = atk || this.level * ctrl.levUpVal.atk;
+  this.def = def || this.level * ctrl.levUpVal.def;
+  this.luk = luk || this.level * ctrl.levUpVal.luk;
 }
 
-var Player = function (name, hp, level, atk, def, luk, exp, job) {
+var Player = function (name, level, hp, atk, def, luk, exp, job, money) {
   Character.apply(this, arguments);
   this.exp = exp || 0;
-  this.job = job || "마법사";
+  this.job = job || "도적";
+  this.money = money || 0;
 }
 
 Player.prototype = Object.create(Character.prototype);
 Player.prototype.constructor = Player;
 
 var monsterList = [
-  //이름, HP, 레벨, 공격력, 방어력, 행운
-  ["슬라임", 80, 1, 5, 10, 10],
-  ["늑대", 100, 2, 12, 10, 5],
-  ["고블린", 130, 3, 16, 16, 1]
+  //이름, 레벨, HP, 공격력, 방어력, 행운
+  ["슬라임", 1, 80, 5, 10, 10],
+  ["늑대", 2, 100, 12, 10, 5],
+  ["고블린", 3, 130, 16, 16, 1]
 ]
 
 var makeMonster = function () {
@@ -111,7 +133,7 @@ Character.prototype.attack = function (target) {
   // 크리티컬 확률 계산
   var isCritical = function () {
     var criRate = 2;
-    if (Math.floor(Math.random() * 100) <= (self.luk - target.luk) * criRate) {
+    if (getRandom() <= (self.luk - target.luk) * criRate) {
       return true;
     }
   };
@@ -165,13 +187,70 @@ Player.prototype.battleDone = function (type, target) {
   // 승리로 인한 전투종료인 경우
   log(`${target.name}을 물리쳤다!`);
 
-  // var gainedXP =
+
+  // 보상으로 얻을 경험치와 골드 계산
+  var gainedExp = getRandom(5, 30) + (target.level * 30);
+  var gainedGold = getRandom(10, 50) + (target.level * 20);
+
+
+  // 보상 획득
+  self.exp += gainedExp;
+  self.money += gainedGold;
+  log(`${gainedExp} Exp를 획득했다. (현재 경험치: ${self.exp} Exp)`);
+  log(`${gainedGold} 골드를 획득했다. (현재 소지금: ${self.money} 골드)`);
+
+
+  // 레벨업 판단
+  if (this.exp >= (50 + this.level * 80)) {
+    self.levelUp();
+  }
+
+}
+
+
+Player.prototype.levelUp = function () {
+
+  // 레벨 업
+  this.level += 1;
+  log(`레벨 업! 레벨 ${this.level}이(가) 되었다.`);
+
+  // 공격력 향상
+  if (this.job === "마법사") {
+    this.atk = (this.level * ctrl.levUpVal.atk) * (1 + ctrl.jobBonus[0] / 100);
+  } else if (this.job === "전사") {
+    this.atk = (this.level * ctrl.levUpVal.atk) * (1 + ctrl.jobBonus[1] / 100);
+  } else if (this.job === "도적") {
+    this.atk = (this.level * ctrl.levUpVal.atk) * (1 + ctrl.jobBonus[2] / 100);
+  }
+
+  // 방어력 향상
+  if (this.job === "마법사") {
+    this.def = (this.level * ctrl.levUpVal.def) * (1 + ctrl.jobBonus[2] / 100);
+  } else if (this.job === "전사") {
+    this.def = (this.level * ctrl.levUpVal.def) * (1 + ctrl.jobBonus[0] / 100);
+  } else if (this.job === "도적") {
+    this.def = (this.level * ctrl.levUpVal.def) * (1 + ctrl.jobBonus[1] / 100);
+  }
+
+  // 행운 향상
+  if (this.job === "마법사") {
+    this.luk = (this.level * ctrl.levUpVal.luk) * (1 + ctrl.jobBonus[1] / 100);
+  } else if (this.job === "전사") {
+    this.luk = (this.level * ctrl.levUpVal.luk) * (1 + ctrl.jobBonus[2] / 100);
+  } else if (this.job === "도적") {
+    this.luk = (this.level * ctrl.levUpVal.luk) * (1 + ctrl.jobBonus[0] / 100);
+  }
+
+
 
 }
 
 
 var nana = new Player("Nana");
 var m = makeMonster();
+nana.attack(m);
+nana.attack(m);
+nana.attack(m);
 nana.attack(m);
 nana.attack(m);
 nana.attack(m);
