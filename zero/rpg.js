@@ -13,8 +13,8 @@
     - 소지금 : 플레이어만.
   
   - 데미지 산출은 (공격력±10% - 방어력±5%) * 2 이다.
-  - 크리티컬 확률은 2*(공격자 행운 - 방어자 행운)%이다. 크리티컬이 발생하면 최종 데미지는 두 배가 된다.
-  - 회피 확률은 (방어자 행운 > 공격자 행운)일 때 5% 확률로 발생한다. 회피가 발생하면 데미지는 0이 된다.
+  - 크리티컬 확률은 2*(공격자 행운 - 방어자 행운)이다. 크리티컬이 발생하면 최종 데미지는 두 배가 된다.
+  - 회피 확률은 무조건 1%로 발생한다. (행운 차이)가 0 이상이면 5%확률로 발생한다. 만약 행운 차이가 2배라면 30%로 발생한다. 행운 차이가 3배라면 50%로 발생한다. 회피가 발생하면 데미지는 0이 된다.
 
   - 전투에서 승리하면 적의 레벨에 비례해 돈을 얻는다.
   - 얻은 돈은 여관에서 휴식하는 데 사용한다.
@@ -67,10 +67,9 @@ var ctrl = {
     def: 40, //(레벨*40) + 보정
     luk: 10 //(레벨*10) + 보정
   },
-  jobBonus: [10, 5, 0]
+  jobBonus: [10, 5, 0] //직업별 보정 수치, 10/5/0%
 }
 
-console.log((ctrl.levUpVal.hp[0]))
 
 var log = function (msg) {
   var p = document.createElement("p");
@@ -90,7 +89,7 @@ var Character = function (name, level, hp, atk, def, luk) {
 var Player = function (name, level, hp, atk, def, luk, exp, job, money) {
   Character.apply(this, arguments);
   this.exp = exp || 0;
-  this.job = job || "도적";
+  this.job = job || "마법사";
   this.money = money || 0;
 }
 
@@ -99,7 +98,7 @@ Player.prototype.constructor = Player;
 
 var monsterList = [
   //이름, 레벨, HP, 공격력, 방어력, 행운
-  ["슬라임", 1, 80, 5, 10, 10],
+  ["슬라임", 1, 80, 45, 10, 20],
   ["늑대", 2, 100, 12, 10, 5],
   ["고블린", 3, 130, 16, 16, 1]
 ]
@@ -121,14 +120,14 @@ Character.prototype.attack = function (target) {
   var self = this;
 
   // 공격 시작
-  log(`${this.name}가 ${target.name}을 공격한다.`);
+  log(`${this.name}이(가) ${target.name}을(를) 공격한다.`);
 
   // 데미지 산출
   var atkCalc = (Math.floor(Math.random() * (this.atk * 0.1 * 2 + 1)) - (this.atk * 0.1));
   var defCalc = (Math.floor(Math.random() * (target.def * 0.05 * 2 + 1)) - (target.def * 0.05));
   atkCalc < 1 ? atkCalc = 0 : atkCalc;
   defCalc < 1 ? defCalc = 0 : defCalc;
-  var damage = ((this.atk + atkCalc) - (target.def + defCalc));
+  var damage = Math.ceil(((this.atk + atkCalc) - (target.def + defCalc)));
 
   // 크리티컬 확률 계산
   var isCritical = function () {
@@ -137,6 +136,7 @@ Character.prototype.attack = function (target) {
       return true;
     }
   };
+
 
 
   // 공격 실패
@@ -158,11 +158,11 @@ Character.prototype.attack = function (target) {
 
   // 적의 HP 판단
   if (target.hp >= 0) {
-    log(`${damage}의 데미지를 입혔다. (${target.name}의 HP: ${target.hp})`);
+    log(`${target.name}에게 ${damage}의 데미지를 입혔다. (${target.name}의 HP: ${target.hp})`);
   } else {
     target.hp = 0
-    log(`${damage}의 데미지를 입혔다. (${target.name}의 HP: ${target.hp})`);
-    self.battleDone("victory", target);
+    log(`${target.name}에게 ${damage}의 데미지를 입혔다. (${target.name}의 HP: ${target.hp})`);
+    this.battleDone("victory", target);
   }
 
 }
@@ -171,6 +171,7 @@ Character.prototype.attack = function (target) {
 Player.prototype.battleDone = function (type, target) {
 
   var self = this;
+  var target = target || ""
 
   // 패배로 인한 전투 종료인지 판단
   if (type === "defeat") {
@@ -241,16 +242,72 @@ Player.prototype.levelUp = function () {
     this.luk = (this.level * ctrl.levUpVal.luk) * (1 + ctrl.jobBonus[0] / 100);
   }
 
-
-
 }
 
+// // 공격받음 (상대 턴)
+// Character.prototype.attacked = function (damage) {
 
-var nana = new Player("Nana");
+//   var self = this;
+
+//   console.log(this.name, this.luk);
+
+
+//   // 회피 확률 계산
+//   var isEvade = function () {
+
+//     var evadeRate = 1;
+
+//     if (self.luk > target.luk) {
+//       evadeRate = 5;
+//     }
+//     if (self.luk >= (target.luk * 2)) {
+//       evadeRate = 30;
+//     }
+//     if (self.luk >= (target.luk * 3)) {
+//       evadeRate = 50;
+//     }
+
+//     if (getRandom() <= evadeRate) {
+//       console.log("랜덤", getRandom());
+//       console.log(self.name, evadeRate);
+//       return true;
+//     }
+
+//   };
+
+
+
+//   // 회피 여부
+//   if (isEvade()) {
+//     log(`${self.name}이(가) 공격을 회피했다.`);
+//     return false;
+//   }
+
+//   this.hp -= damage;
+
+//   // 플레이어 HP 판단
+//   if (this.hp >= 0) {
+//     log(`${damage}의 데미지를 입었다. (${this.name}의 HP: ${this.hp})`);
+//   } else {
+//     this.hp = 0
+//     log(`${damage}의 데미지를 입었다. (${this.name}의 HP: ${this.hp})`);
+//     this.battleDone("defeat");
+//   }
+
+// }
+
+
+var nana = new Player("나나");
 var m = makeMonster();
-nana.attack(m);
-nana.attack(m);
-nana.attack(m);
-nana.attack(m);
-nana.attack(m);
-nana.attack(m);
+
+// nana.attack(m);
+m.attack(nana);
+// nana.attack(m);
+m.attack(nana);
+// nana.attack(m);
+m.attack(nana);
+// nana.attacked(10);
+// nana.attack(m);
+// nana.attack(m);
+// nana.attack(m);
+// nana.attack(m);
