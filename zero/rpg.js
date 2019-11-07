@@ -91,6 +91,9 @@ var log = function (msg, type) {
     case "lvup":
       className = "msg-lvup";
       break;
+    case "monster":
+      className = "msg-monster";
+      break;
     default:
       className = "msg"
   }
@@ -130,8 +133,12 @@ var monsterList = [
 
 var makeMonster = function () {
   var newMonster = new Character();
-  Character.apply(newMonster, monsterList[1]);
+  Character.apply(newMonster, monsterList[0]);
   return newMonster;
+}
+
+var monsterActivity = function () {
+
 }
 
 // ++++
@@ -155,16 +162,13 @@ Character.prototype.attack = function (target) {
 
   var self = this;
 
-  // 공격 시작
-  log(`${this.name}이(가) ${target.name}을(를) 공격한다.`);
-
-
   // 데미지 산출
-  var atkCalc = (Math.floor(Math.random() * (this.atk * 0.1 * 2 + 1)) - (this.atk * 0.1));
+  var atkCalc = (Math.floor(Math.random() * (self.atk * 0.1 * 2 + 1)) - (self.atk * 0.1));
   var defCalc = (Math.floor(Math.random() * (target.def * 0.05 * 2 + 1)) - (target.def * 0.05));
   atkCalc < 1 ? atkCalc = 0 : atkCalc;
   defCalc < 1 ? defCalc = 0 : defCalc;
-  var damage = Math.ceil(((this.atk + atkCalc) - (target.def + defCalc)));
+  var damage = Math.ceil(((self.atk + atkCalc) - (target.def + defCalc)));
+
 
   // 크리티컬 확률 계산
   var isCritical = function () {
@@ -197,46 +201,77 @@ Character.prototype.attack = function (target) {
 
   };
 
-  // 공격 실패
-  if (damage <= 0) {
-    log(`공격에 실패했다...`);
-    command.off();
-    return false;
+  //몬스터가 공격하는 경우
+  if (target.__proto__ === Player.prototype) {
+
+
+    setTimeout(function () {
+      battleOn();
+    }, 1000);
+
+    setTimeout(function () {
+      battleResult();
+      command.on();
+    }, 2000);
+  } else {
+    battleOn();
+
+    setTimeout(function () {
+      battleResult();
+    }, 1000);
   }
 
-  // 크리티컬 여부
-  if (isCritical()) {
-    log(`크리티컬 히트!`, "cri");
-    damage *= 2;
-  } else {
-    // 회피 여부
-    if (isEvade()) {
-      log(`${target.name}이(가) 공격을 회피했다.`);
+
+  function battleOn() {
+
+    // 공격 시작
+    log(`${self.name}이(가) ${target.name}을(를) 공격한다.`);
+
+  }
+
+  function battleResult() {
+
+    // 공격 실패
+    if (damage <= 0) {
+      log(`공격에 실패했다...`);
       command.off();
       return false;
     }
-  }
 
-
-  // 공격 성공
-  target.hp -= damage;
-
-
-
-  // HP 판단
-  if (target.hp >= 0) {
-    log(`${target.name}에게 ${damage}의 데미지를 입혔다. (${target.name}의 HP: ${target.hp})`, "atk");
-  } else {
-    target.hp <= 0
-    log(`${target.name}에게 ${damage}의 데미지를 입혔다. (${target.name}의 HP: ${target.hp})`, "atk");
-    battle = false;
-
-    if (target.__proto__ === Player.prototype) {
-      // 타겟 = 플레이어인 경우 패배 처리
-      this.battleDone("defeat");
+    // 크리티컬 여부
+    if (isCritical()) {
+      log(`크리티컬 히트!`, "cri");
+      damage *= 2;
     } else {
-      // 타겟 ≠ 플레이어인 경우 승리 처리
-      this.battleDone("victory", target);
+      // 회피 여부
+      if (isEvade()) {
+        log(`${target.name}이(가) 공격을 회피했다.`);
+        command.off();
+        return false;
+      }
+    }
+
+
+    // 공격 성공
+    target.hp -= damage;
+
+
+
+    // HP 판단
+    if (target.hp >= 0) {
+      log(`${target.name}에게 ${damage}의 데미지를 입혔다. (${target.name}의 HP: ${target.hp})`, "atk");
+    } else {
+      target.hp <= 0
+      log(`${target.name}에게 ${damage}의 데미지를 입혔다. (${target.name}의 HP: ${target.hp})`, "atk");
+      battle = false;
+
+      if (target.__proto__ === Player.prototype) {
+        // 타겟 = 플레이어인 경우 패배 처리
+        self.battleDone("defeat");
+      } else {
+        // 타겟 ≠ 플레이어인 경우 승리 처리
+        self.battleDone("victory", target);
+      }
     }
   }
 
@@ -254,34 +289,33 @@ Character.prototype.battleStart = function (type, target) {
   monster = makeMonster();
 
   // 선공 후공 결정
-  var firstTurn;
-  var secondTurn;
   if (getRandom() <= 50) {
     // 플레이어 선공
-    firstTurn = player;
-    secondTurn = monster;
-    log(`선공이다! ${firstTurn.name}은(는) 무엇을 할까?`);
+    turnMaster = player;
+    command.on();
+    log(`선공이다! ${turnMaster.name}은(는) 무엇을 할까?`);
   } else {
     // 플레이어 후공
-    firstTurn = monster;
-    secondTurn = player;
-    log(`기습이다! ${firstTurn.name}이(가) 먼저 공격할 것이다.`);
+    turnMaster = monster;
+    command.off();
+    log(`기습이다! ${turnMaster.name}이(가) 먼저 공격할 것이다.`);
+    turnMaster.attack(player);
   }
 
   // 전투 시작
   battle = true;
 
 
-  while (battle) {
-    if (firstTurn.hp <= 0) {
-      break;
-    }
-    firstTurn.attack(secondTurn);
-    if (secondTurn.hp <= 0) {
-      break;
-    }
-    secondTurn.attack(firstTurn);
-  }
+  // while (battle) {
+  //   if (firstTurn.hp <= 0) {
+  //     break;
+  //   }
+  //   firstTurn.attack(secondTurn);
+  //   if (secondTurn.hp <= 0) {
+  //     break;
+  //   }
+  //   secondTurn.attack(firstTurn);
+  // }
 
   // turnMaster = player;
   // log(`${monster.name}이 나타났다!`, "atk");
@@ -388,6 +422,8 @@ Character.prototype.battleDone = function (type, target) {
     self.levelUp();
   }
 
+  battle = false;
+
 }
 
 
@@ -441,11 +477,17 @@ var command = {
   },
   off: function () {
     battleMenu.classList.remove("on");
-    log("배틀메뉴 오프!");
   },
   atk: function () {
     player.attack(monster);
     command.off();
+
+    setTimeout(function () {
+      if (monster.hp >= 0) {
+        monster.attack(player);
+        command.on();
+      }
+    }, 1000);
   }
 }
 
