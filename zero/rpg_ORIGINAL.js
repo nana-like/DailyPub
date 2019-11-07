@@ -124,13 +124,13 @@ var monsterList = [
   //이름, 레벨, HP, 공격력, 방어력, 행운
   ["슬라임", 1, 80, 45, 10, 20],
   ["늑대", 2, 100, 12, 10, 5],
-  ["고블린", 3, 130, 80, 46, 31],
+  ["고블린", 3, 130, 16, 16, 11],
   ["마왕", 30, 1030, 200, 300, 0]
 ]
 
 var makeMonster = function () {
   var newMonster = new Character();
-  Character.apply(newMonster, monsterList[1]);
+  Character.apply(newMonster, monsterList[0]);
   return newMonster;
 }
 
@@ -229,7 +229,6 @@ Character.prototype.attack = function (target) {
   } else {
     target.hp <= 0
     log(`${target.name}에게 ${damage}의 데미지를 입혔다. (${target.name}의 HP: ${target.hp})`, "atk");
-    battle = false;
 
     if (target.__proto__ === Player.prototype) {
       // 타겟 = 플레이어인 경우 패배 처리
@@ -245,49 +244,16 @@ Character.prototype.attack = function (target) {
 //턴의 주인
 var turnMaster;
 
-
-
 // 전투 시작
 Character.prototype.battleStart = function (type, target) {
 
   // 몬스터 생성
   monster = makeMonster();
-
-  // 선공 후공 결정
-  var firstTurn;
-  var secondTurn;
-  if (getRandom() <= 50) {
-    // 플레이어 선공
-    firstTurn = player;
-    secondTurn = monster;
-    log(`선공이다! ${firstTurn.name}은(는) 무엇을 할까?`);
-  } else {
-    // 플레이어 후공
-    firstTurn = monster;
-    secondTurn = player;
-    log(`기습이다! ${firstTurn.name}이(가) 먼저 공격할 것이다.`);
-  }
-
-  // 전투 시작
-  battle = true;
-
-
-  while (battle) {
-    if (firstTurn.hp <= 0) {
-      break;
-    }
-    firstTurn.attack(secondTurn);
-    if (secondTurn.hp <= 0) {
-      break;
-    }
-    secondTurn.attack(firstTurn);
-  }
-
-  // turnMaster = player;
-  // log(`${monster.name}이 나타났다!`, "atk");
-  // log(`${player.name}의 차례다. 공격하자.`);
-  // player.attack(monster);
-  // monster.attack(player);
+  turnMaster = player;
+  log(`${monster.name}이 나타났다!`, "atk");
+  log(`${player.name}의 차례다. 공격하자.`);
+  player.attack(monster);
+  monster.attack(player);
 
   // // 선공 지정
   // var firstTurn;

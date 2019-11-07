@@ -34,15 +34,36 @@
       background-color: rgb(245, 229, 229);
       padding: 4px;
     }
+
+    .battleMenu {
+      outline: 4px solid gold;
+      position: fixed;
+      top: 0;
+      right: 0;
+      padding: 20px;
+      opacity: 0.5;
+    }
+
+    .battleMenu.on {
+      opacity: 1;
+    }
   </style>
 </head>
 
 <body>
 
+  <div class="battleMenu">
+    <button class="battle-atk">공격</button>
+    <button class="battle-def">방어</button>
+    <button class="battle-item">아이템 사용</button>
+    <button class="battle-escape">도망</button>
+  </div>
+
   <div id="log"></div>
   <!-- <script src="zero/extend.js"></script>
   <script src="zero/apply.js"></script> -->
   <script src="zero/rpg.js"></script>
+  <!-- <script src="zero/turn.js"></script> -->
 </body>
 
 </html>
