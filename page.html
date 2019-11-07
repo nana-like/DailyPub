@@ -35,6 +35,31 @@
       padding: 4px;
     }
 
+    #log {
+      margin-top: 70px;
+    }
+
+    .commonMenu {
+      position: fixed;
+      top: 0px;
+      left: 0;
+      outline: 2px solid blue;
+    }
+
+    .dungeonMenu {
+      position: fixed;
+      top: 30px;
+      left: 0;
+      outline: 2px solid red;
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .dungeonMenu.on {
+      opacity: 1;
+      pointer-events: initial;
+    }
+
     .battleMenu {
       outline: 4px solid gold;
       position: fixed;
@@ -54,12 +79,25 @@
 
 <body>
 
-  <div class="battleMenu">
+  <div class="menu commonMenu">
+    <button class="common-dungeon">던전</button>
+    <button class="common-inn">여관</button>
+    <button class="common-shop">상점</button>
+  </div>
+
+  <div class="menu dungeonMenu">
+    <button class="dungeon-next">계속 던전 탐험</button>
+    <button class="dungeon-exit">마을로 돌아가기</button>
+    <button class="dungeon-item">아이템 사용</button>
+  </div>
+
+  <div class="menu battleMenu">
     <button class="battle-atk">공격</button>
     <button class="battle-def">방어</button>
     <button class="battle-item">아이템 사용</button>
     <button class="battle-escape">도망</button>
   </div>
+
 
   <div id="log"></div>
   <!-- <script src="zero/extend.js"></script>

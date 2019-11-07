@@ -125,15 +125,16 @@ Player.prototype.constructor = Player;
 
 var monsterList = [
   //이름, 레벨, HP, 공격력, 방어력, 행운
-  ["슬라임", 1, 80, 45, 10, 20],
-  ["늑대", 2, 100, 12, 10, 5],
+  ["슬라임", 1, 50, 45, 10, 20],
+  ["늑대", 2, 80, 50, 15, 5],
   ["고블린", 3, 130, 80, 46, 31],
   ["마왕", 30, 1030, 200, 300, 0]
 ]
 
-var makeMonster = function () {
+var makeMonster = function (lv) {
+  var lv = lv || 0;
   var newMonster = new Character();
-  Character.apply(newMonster, monsterList[0]);
+  Character.apply(newMonster, monsterList[lv]);
   return newMonster;
 }
 
@@ -147,13 +148,7 @@ var battle = false;
 var player = new Player("플레이어");
 var test = false;
 var battleMenu = document.querySelector(".battleMenu");
-// var battleMenuBtn = {
-//   atk: battleMenu.children[0],
-//   def: battleMenu.children[1],
-//   item: battleMenu.children[2],
-//   escape: battleMenu.children[3],
-// }
-var monster;
+var dungeonMenu = document.querySelector(".dungeonMenu");
 
 // ++++
 
@@ -203,21 +198,26 @@ Character.prototype.attack = function (target) {
 
   //몬스터가 공격하는 경우
   if (target.__proto__ === Player.prototype) {
-
+    command.off();
+    // setTimeout(function () {
+    //   log("...");
+    // }, 500);
 
     setTimeout(function () {
       battleOn();
-    }, 1000);
+    }, 1500);
 
     setTimeout(function () {
       battleResult();
       command.on();
-    }, 2000);
+    }, 2500);
   } else {
+    //내가 공격하는 경우
     battleOn();
 
     setTimeout(function () {
       battleResult();
+      command.off();
     }, 1000);
   }
 
@@ -246,7 +246,6 @@ Character.prototype.attack = function (target) {
       // 회피 여부
       if (isEvade()) {
         log(`${target.name}이(가) 공격을 회피했다.`);
-        command.off();
         return false;
       }
     }
@@ -283,10 +282,10 @@ var turnMaster;
 
 
 // 전투 시작
-Character.prototype.battleStart = function (type, target) {
+Character.prototype.battleStart = function (lv) {
 
   // 몬스터 생성
-  monster = makeMonster();
+  monster = makeMonster(lv);
 
   // 선공 후공 결정
   if (getRandom() <= 50) {
@@ -392,12 +391,14 @@ Character.prototype.battleDone = function (type, target) {
   // 패배로 인한 전투 종료인지 판단
   if (type === "defeat") {
     log(`전투에서 패배했다...`, "def");
+    command.dungeon.on();
     return false;
   }
 
   // 도망으로 인한 전투 종료인지 판단
   if (type === "escape") {
     log(`전투에서 도망쳤다...`);
+    command.dungeon.on();
     return false;
   }
 
@@ -406,8 +407,8 @@ Character.prototype.battleDone = function (type, target) {
 
 
   // 보상으로 얻을 경험치와 골드 계산
-  var gainedExp = getRandom(5, 30) + (target.level * 30);
-  var gainedGold = getRandom(10, 50) + (target.level * 20);
+  var gainedExp = getRandom(5, 30) + (target.level * 60);
+  var gainedGold = getRandom(10, 50) + (target.level * 30);
 
 
   // 보상 획득
@@ -423,6 +424,7 @@ Character.prototype.battleDone = function (type, target) {
   }
 
   battle = false;
+  command.dungeon.on();
 
 }
 
@@ -470,6 +472,13 @@ var enterDungeon = function () {
 };
 
 
+var nextDungeon = function () {
+  log("...던전 좀 더 깊숙하게 들어가본다...");
+
+  player.battleStart(1);
+};
+
+
 
 var command = {
   on: function () {
@@ -484,10 +493,18 @@ var command = {
 
     setTimeout(function () {
       if (monster.hp >= 0) {
+        command.off();
         monster.attack(player);
-        command.on();
       }
     }, 1000);
+  },
+  dungeon: {
+    on: function () {
+      dungeonMenu.classList.add("on");
+    },
+    off: function () {
+      dungeonMenu.classList.remove("on");
+    },
   }
 }
 
@@ -497,6 +514,12 @@ battleMenu.addEventListener("click", function (e) {
   console.dir(e.target);
   if (e.target === battleMenu.children[0]) {
     command.atk();
+  }
+});
+dungeonMenu.addEventListener("click", function (e) {
+  console.dir(e.target);
+  if (e.target === dungeonMenu.children[0]) {
+    nextDungeon();
   }
 });
 
