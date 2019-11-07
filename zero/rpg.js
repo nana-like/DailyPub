@@ -71,9 +71,31 @@ var ctrl = {
 }
 
 
-var log = function (msg) {
+var log = function (msg, type) {
+  var className;
+  switch (type) {
+    case "atk":
+      className = "msg-atk";
+      break;
+    case "cri":
+      className = "msg-cri";
+      break;
+    case "vic":
+      className = "msg-vic";
+      break;
+    case "def":
+      className = "msg-def";
+      break;
+    case "lvup":
+      className = "msg-lvup";
+      break;
+    default:
+      className = "msg"
+  }
   var p = document.createElement("p");
   p.innerHTML = msg;
+  p.classList.add(className);
+  p.style.fontSize = "14px";
   document.getElementById("log").appendChild(p);
 }
 
@@ -100,18 +122,22 @@ var monsterList = [
   //이름, 레벨, HP, 공격력, 방어력, 행운
   ["슬라임", 1, 80, 45, 10, 20],
   ["늑대", 2, 100, 12, 10, 5],
-  ["고블린", 3, 130, 16, 16, 1]
+  ["고블린", 3, 130, 16, 16, 11],
+  ["마왕", 30, 1030, 200, 300, 0]
 ]
 
 var makeMonster = function () {
   var newMonster = new Character();
-  Character.apply(newMonster, monsterList[0]);
+  Character.apply(newMonster, monsterList[3]);
   return newMonster;
 }
 
 // ++++
 // 글로벌 변수
 var battle = false;
+var player = new Player("플레이어");
+
+
 // ++++
 
 // 공격
@@ -137,7 +163,28 @@ Character.prototype.attack = function (target) {
     }
   };
 
+  // 회피 확률 계산
+  var isEvade = function () {
 
+    var evadeRate = 1;
+
+    if (self.luk > target.luk) {
+      evadeRate = 5;
+    }
+    if (self.luk >= (target.luk * 2)) {
+      evadeRate = 30;
+    }
+    if (self.luk >= (target.luk * 3)) {
+      evadeRate = 50;
+    }
+
+    if (getRandom() <= evadeRate) {
+      console.log("랜덤", getRandom());
+      console.log(self.name, evadeRate);
+      return true;
+    }
+
+  };
 
   // 공격 실패
   if (damage <= 0) {
@@ -147,35 +194,89 @@ Character.prototype.attack = function (target) {
 
   // 크리티컬 여부
   if (isCritical()) {
-    log(`크리티컬 히트!`);
+    log(`크리티컬 히트!`, "cri");
     damage *= 2;
+  } else {
+    // 회피 여부
+    if (isEvade()) {
+      log(`${target.name}이(가) 공격을 회피했다.`);
+      return false;
+    }
   }
 
+
+
+  //TODO: 크리가 뜨면 회피는 무효화
 
   // 공격 성공
   target.hp -= damage;
 
 
-  // 적의 HP 판단
+  // HP 판단
   if (target.hp >= 0) {
-    log(`${target.name}에게 ${damage}의 데미지를 입혔다. (${target.name}의 HP: ${target.hp})`);
+    log(`${target.name}에게 ${damage}의 데미지를 입혔다. (${target.name}의 HP: ${target.hp})`, "atk");
   } else {
-    target.hp = 0
-    log(`${target.name}에게 ${damage}의 데미지를 입혔다. (${target.name}의 HP: ${target.hp})`);
-    this.battleDone("victory", target);
+    target.hp <= 0
+    log(`${target.name}에게 ${damage}의 데미지를 입혔다. (${target.name}의 HP: ${target.hp})`, "atk");
+
+    if (target.__proto__ === Player.prototype) {
+      // 타겟 = 플레이어인 경우 패배 처리
+      this.battleDone("defeat");
+    } else {
+      // 타겟 ≠ 플레이어인 경우 승리 처리
+      this.battleDone("victory", target);
+    }
   }
 
 }
 
-//전투 종료
-Player.prototype.battleDone = function (type, target) {
+// 전투 시작
+Character.prototype.battleStart = function (type, target) {
+
+  // 변수 TRUE
+  battle = true;
+
+  // 몬스터 생성
+  var monster = makeMonster();
+  // console.dir(monster);
+  player.attack(monster);
+  monster.attack(player);
+  player.attack(monster);
+
+  // 선공 지정
+  var firstTurn;
+  var target;
+  if (getRandom() <= 50) {
+    firstTurn = player;
+    target = monster;
+  } else {
+    firstTurn = monster;
+    target = player;
+  }
+
+  //TODO:에러남;;
+  // while (battle) {
+  //   console.dir(battle);
+  //   console.log("선공이 후공 공격")
+  //   firstTurn.attack(target);
+  //   if (!battle) { break; }
+  //   console.dir(battle);
+  //   console.log("후공이 선공 공격")
+  //   target.attack(firstTurn);
+  // }
+
+};
+
+
+// 전투 종료
+Character.prototype.battleDone = function (type, target) {
 
   var self = this;
   var target = target || ""
 
   // 패배로 인한 전투 종료인지 판단
   if (type === "defeat") {
-    log(`전투에서 패배했다...`);
+    log(`전투에서 패배했다...`, "def");
     return false;
   }
 
@@ -186,7 +287,7 @@ Player.prototype.battleDone = function (type, target) {
   }
 
   // 승리로 인한 전투종료인 경우
-  log(`${target.name}을 물리쳤다!`);
+  log(`${target.name}을 물리쳤다!`, "vic");
 
 
   // 보상으로 얻을 경험치와 골드 계산
@@ -206,6 +307,9 @@ Player.prototype.battleDone = function (type, target) {
     self.levelUp();
   }
 
+  // 변수 FALSE
+  battle = false;
+
 }
 
 
@@ -213,7 +317,7 @@ Player.prototype.levelUp = function () {
 
   // 레벨 업
   this.level += 1;
-  log(`레벨 업! 레벨 ${this.level}이(가) 되었다.`);
+  log(`레벨 업! 레벨 ${this.level}이(가) 되었다.`, "lvup");
 
   // 공격력 향상
   if (this.job === "마법사") {
@@ -243,6 +347,9 @@ Player.prototype.levelUp = function () {
   }
 
 }
+
+
+player.battleStart();
 
 // // 공격받음 (상대 턴)
 // Character.prototype.attacked = function (damage) {
@@ -295,19 +402,3 @@ Player.prototype.levelUp = function () {
 //   }
 
 // }
-
-
-var nana = new Player("나나");
-var m = makeMonster();
-
-// nana.attack(m);
-m.attack(nana);
-// nana.attack(m);
-m.attack(nana);
-// nana.attack(m);
-m.attack(nana);
-// nana.attacked(10);
-// nana.attack(m);
-// nana.attack(m);
-// nana.attack(m);
-// nana.attack(m);
