@@ -79,28 +79,23 @@
 
 <body>
 
+  <div class="menu commonMenu">
+    <button class="common-dungeon">던전</button>
+    <button class="common-inn">여관</button>
+    <button class="common-shop">상점</button>
+  </div>
+
   <div class="menu dungeonMenu">
     <button class="dungeon-next">계속 던전 탐험</button>
+    <button class="dungeon-exit">마을로 돌아가기</button>
+    <button class="dungeon-item">아이템 사용</button>
   </div>
 
   <div class="menu battleMenu">
     <button class="battle-atk">공격</button>
     <button class="battle-def">방어</button>
-    <button class="battle-item">회복</button>
+    <button class="battle-item">아이템 사용</button>
     <button class="battle-escape">도망</button>
-  </div>
-
-
-  <div class="status">
-    <p class="status-name">플레이어</p>
-    <p class="status-name">Lv.1</p>
-    <p class="status-name">마법사</p>
-    <p class="status-name">HP: 100</p>
-    <p class="status-name">경험치: 100</p>
-    <p class="status-name">소지금: 100</p>
-    <p class="status-name">공격력: 100</p>
-    <p class="status-name">방어력: 100</p>
-    <p class="status-name">행운: 100</p>
   </div>
 
 

@@ -52,9 +52,59 @@
 
     (던전 진입) -> (몬스터 생성) -> (선공 결정) -> 선공 공격 -> 후공 공격 -> 전투 종료
 
+
+
+    ****************************************
+
+    //마지막 TODO: 11/8 금
+
+    - 패배 시 경험치 잃어버리는 기능 🌕
+    - 플레이어 레벨에 맞춰 몬스터 랜덤 등장 🌑
+    - 여관X 던전 내 회복으로 🌕
+    - 항시 보여지는 스테이터스창 추가 🌑
+    - UI 변경 (누구의 턴인지 알기 쉽게) 🌑
+
+    ****************************************
+
  */
 
+/*
+ * ===== 글로벌 =====
+ */
 
+// 전투 중인지 체크
+var battle = false;
+
+// 턴의 주인 (누가 선공인지 체크)
+var turnMaster;
+
+// 셀렉터
+var battleMenu = document.querySelector(".battleMenu");
+var dungeonMenu = document.querySelector(".dungeonMenu");
+
+// 밸런스 컨트롤러
+var ctrl = {
+  // 레벨업 시 상승하는 스테이터스
+  levUpVal: {
+    hp: [50, 10], // (레벨*50) + (레벨*10)
+    atk: 30, // (레벨*30) + 보정
+    def: 40, // (레벨*40) + 보정
+    luk: 10 // (레벨*10) + 보정
+  },
+  // 직업별 보정 수치
+  jobBonus: [10, 5, 0] // 10/5/0%만큼 추가 스테이터스
+}
+
+// 몬스터 리스트
+var monsterList = [
+  //이름, 레벨, HP, 공격력, 방어력, 행운
+  ["슬라임", 1, 50, 45, 10, 20],
+  ["늑대", 2, 80, 50, 15, 5],
+  ["고블린", 3, 130, 80, 46, 31],
+  ["마왕", 30, 1030, 200, 300, 0]
+]
+
+// 난수 생성
 var getRandom = function (min, max) {
   min = Math.ceil(min) || 0;
   max = Math.floor(max) || 100;
@@ -62,17 +112,7 @@ var getRandom = function (min, max) {
 }
 
 
-var ctrl = {
-  levUpVal: {
-    hp: [50, 10], //(레벨*50) + (레벨*10)
-    atk: 30, //(레벨*30) + 보정
-    def: 40, //(레벨*40) + 보정
-    luk: 10 //(레벨*10) + 보정
-  },
-  jobBonus: [10, 5, 0] //직업별 보정 수치, 10/5/0%
-}
-
-
+// 로그 출력
 var log = function (msg, type) {
   var className;
   switch (type) {
@@ -104,33 +144,8 @@ var log = function (msg, type) {
   document.getElementById("log").appendChild(p);
 }
 
-var Character = function (name, level, hp, atk, def, luk) {
-  this.name = name;
-  this.level = level || 1;
-  this.hp = hp || ((this.level * ctrl.levUpVal.hp[0]) + (this.level * ctrl.levUpVal.hp[1]));
-  this.atk = atk || this.level * ctrl.levUpVal.atk;
-  this.def = def || this.level * ctrl.levUpVal.def;
-  this.luk = luk || this.level * ctrl.levUpVal.luk;
-}
 
-var Player = function (name, level, hp, atk, def, luk, exp, job, money) {
-  Character.apply(this, arguments);
-  this.exp = exp || 0;
-  this.job = job || "마법사";
-  this.money = money || 0;
-}
-
-Player.prototype = Object.create(Character.prototype);
-Player.prototype.constructor = Player;
-
-var monsterList = [
-  //이름, 레벨, HP, 공격력, 방어력, 행운
-  ["슬라임", 1, 50, 45, 10, 20],
-  ["늑대", 2, 80, 50, 15, 5],
-  ["고블린", 3, 130, 80, 46, 31],
-  ["마왕", 30, 1030, 200, 300, 0]
-]
-
+// 몬스터 생성 함수
 var makeMonster = function (lv) {
   var lv = lv || 0;
   var newMonster = new Character();
@@ -138,24 +153,37 @@ var makeMonster = function (lv) {
   return newMonster;
 }
 
-var monsterActivity = function () {
 
+// 캐릭터 생성자 
+var Character = function (name, level, hp, atk, def, luk) {
+  this.name = name;
+  this.level = level || 1;
+  this.hp = hp || ((this.level * ctrl.levUpVal.hp[0]) + (this.level * ctrl.levUpVal.hp[1]));
+  this.atk = atk || this.level * ctrl.levUpVal.atk;
+  this.def = def || this.level * ctrl.levUpVal.def;
+  this.luk = luk || this.level * ctrl.levUpVal.luk;
+  this.maxHp = this.hp;
 }
 
-// ++++
-// 글로벌 변수
-var battle = false;
-var player = new Player("플레이어");
-var test = false;
-var battleMenu = document.querySelector(".battleMenu");
-var dungeonMenu = document.querySelector(".dungeonMenu");
+// 플레이어 생성자 (exp, job, money)
+var Player = function (name, level, hp, atk, def, luk, exp, job, money) {
+  Character.apply(this, arguments);
+  this.exp = exp || 0;
+  this.job = job || "마법사";
+  this.money = money || 0;
+}
 
-// ++++
+// 프로토타입 연결
+Player.prototype = Object.create(Character.prototype);
+Player.prototype.constructor = Player;
 
-// 공격
-Character.prototype.attack = function (target) {
+
+// 공격 메서드
+Character.prototype.attack = function (target, type) {
 
   var self = this;
+  var target = target;
+  var type = type || "";
 
   // 데미지 산출
   var atkCalc = (Math.floor(Math.random() * (self.atk * 0.1 * 2 + 1)) - (self.atk * 0.1));
@@ -189,79 +217,52 @@ Character.prototype.attack = function (target) {
     }
 
     if (getRandom() <= evadeRate) {
-      console.log("랜덤", getRandom());
-      console.log(self.name, evadeRate);
       return true;
     }
 
   };
 
-  //몬스터가 공격하는 경우
-  if (target.__proto__ === Player.prototype) {
-    command.off();
-    // setTimeout(function () {
-    //   log("...");
-    // }, 500);
 
-    setTimeout(function () {
-      battleOn();
-    }, 1500);
-
-    setTimeout(function () {
-      battleResult();
-      command.on();
-    }, 2500);
-  } else {
-    //내가 공격하는 경우
-    battleOn();
-
-    setTimeout(function () {
-      battleResult();
-      command.off();
-    }, 1000);
+  // 공격 시작
+  var battleOn = function () {
+    log(`🗡 ${self.name}이(가) ${target.name}을(를) 공격한다.`);
   }
 
-
-  function battleOn() {
-
-    // 공격 시작
-    log(`${self.name}이(가) ${target.name}을(를) 공격한다.`);
-
-  }
-
-  function battleResult() {
+  // 공격 결과 판정
+  var battleResult = function () {
 
     // 공격 실패
     if (damage <= 0) {
-      log(`공격에 실패했다...`);
+      log(`😓 공격에 실패했다...`);
       command.off();
       return false;
     }
 
     // 크리티컬 여부
     if (isCritical()) {
-      log(`크리티컬 히트!`, "cri");
+      log(`💥 크리티컬 히트!`, "cri");
       damage *= 2;
     } else {
-      // 회피 여부
+      // 크리티컬이 없었다면 회피 여부 판단
       if (isEvade()) {
-        log(`${target.name}이(가) 공격을 회피했다.`);
+        log(`🍃 ${target.name}이(가) 공격을 회피했다.`);
         return false;
       }
     }
 
 
-    // 공격 성공
+    // 공격 성공 시 데미지 입힘
     target.hp -= damage;
-
-
 
     // HP 판단
     if (target.hp >= 0) {
-      log(`${target.name}에게 ${damage}의 데미지를 입혔다. (${target.name}의 HP: ${target.hp})`, "atk");
+      log(`⚔️ ${target.name}에게 ${damage}의 데미지를 입혔다. (${target.name}의 HP: ${target.hp})`, "atk");
     } else {
-      target.hp <= 0
-      log(`${target.name}에게 ${damage}의 데미지를 입혔다. (${target.name}의 HP: ${target.hp})`, "atk");
+      // 대상의 HP가 0 이하라면
+      target.hp = 0
+      log(`⚔️ ${target.name}에게 ${damage}의 데미지를 입혔다. (${target.name}의 HP: ${target.hp})`, "atk");
+
+      //배틀 종료
       battle = false;
 
       if (target.__proto__ === Player.prototype) {
@@ -274,148 +275,143 @@ Character.prototype.attack = function (target) {
     }
   }
 
+
+  // 회복 메서드인 경우
+  if (type === "recovery") {
+    log(`💤 이번 턴에 ${this.name}은(는) 휴식을 취한다.`);
+
+    setTimeout(function () {
+      self.recovery();
+      log(`😊 체력을 회복했다. (${self.name}의 HP: ${self.hp})`);
+    }, 1500);
+    return false;
+  }
+
+
+  // 1. 몬스터가 공격하는 경우
+  if (target.__proto__ === Player.prototype) {
+
+    if (self.hp <= 0) {
+      // 공격 시점에서 hp가 0 이하라면 중단
+      return false;
+    }
+
+    // 메뉴 OFF
+    command.off();
+
+    // 공격 메시지 출력
+    setTimeout(function () {
+      battleOn();
+    }, 1500);
+
+    // 공격 결과 출력
+    setTimeout(function () {
+      battleResult();
+      if (player.hp <= 0) {
+        // 이 시점에서 플레이어 hp 0 이하라면 커맨드 OFF
+        return false;
+      }
+      // 메뉴 ON
+      command.on();
+    }, 2500);
+  } else {
+    // 2. 내가 공격하는 경우
+    // 메뉴 ON
+    command.on();
+    // 공격 메시지 출력
+    battleOn();
+
+    // 공격 결과 출력
+    setTimeout(function () {
+      battleResult();
+      // 메뉴 OFF
+      command.off();
+    }, 1000);
+  }
+
 }
 
-//턴의 주인
-var turnMaster;
 
-
-
-// 전투 시작
+// 전투 시작 메서드
 Character.prototype.battleStart = function (lv) {
 
   // 몬스터 생성
   monster = makeMonster(lv);
+  log(`👻 ${monster.name}이 나타났다...!`);
 
   // 선공 후공 결정
   if (getRandom() <= 50) {
     // 플레이어 선공
     turnMaster = player;
     command.on();
-    log(`선공이다! ${turnMaster.name}은(는) 무엇을 할까?`);
+    log(`😁 선공이다! ${turnMaster.name}은(는) ${monster.name}을 먼저 공격할 수 있다.`);
   } else {
     // 플레이어 후공
     turnMaster = monster;
     command.off();
-    log(`기습이다! ${turnMaster.name}이(가) 먼저 공격할 것이다.`);
+    log(`😰 기습이다! ${turnMaster.name}이(가) 먼저 공격해 올 것이다.`);
     turnMaster.attack(player);
   }
 
   // 전투 시작
   battle = true;
 
-
-  // while (battle) {
-  //   if (firstTurn.hp <= 0) {
-  //     break;
-  //   }
-  //   firstTurn.attack(secondTurn);
-  //   if (secondTurn.hp <= 0) {
-  //     break;
-  //   }
-  //   secondTurn.attack(firstTurn);
-  // }
-
-  // turnMaster = player;
-  // log(`${monster.name}이 나타났다!`, "atk");
-  // log(`${player.name}의 차례다. 공격하자.`);
-  // player.attack(monster);
-  // monster.attack(player);
-
-  // // 선공 지정
-  // var firstTurn;
-  // var target;
-  // if (getRandom() <= 50) {
-  //   // 플레이어 선공
-  //   log(`${player.name}의 차례다. 무엇을 할까?`)
-  //   command.on();
-  // } else {
-  //   monster.attack(player);
-  // }
-
-  /*
-    1. 내가 선공인 경우
-  
-    1) 배틀 메뉴 활성화
-    2) 나의 공격
-    3) 전투 종료
-    4) 배틀 메뉴 비활성화
-    5) 적의 공격
-    7) 전투 종료
-    8) 배틀 메뉴 활성화
-    ...
-  
-    2. 적이 선공인 경우
-    1) 배틀 메뉴 비활성화
-    2) 적의 공격
-    3) 전투 종료
-    4) 배틀 메뉴 활성화
-    5) 나의 공격
-    7) 전투 종료
-    8) 배틀 메뉴 비활성화
-  
-  
-  */
-
-  // TODO:에러남;;
-  // while (battle) {
-  //   console.dir(battle);
-  //   console.log("선공이 후공 공격")
-  //   firstTurn.attack(target);
-  //   if (!battle) { break; }
-  //   console.dir(battle);
-  //   console.log("후공이 선공 공격")
-  //   target.attack(firstTurn);
-  // }
-
-  // test = true;
-
-  // // 변수 TRUE
-  // battle = true;
-
-  // console.log("test를 true로 처리했다.")
-  // while (test) {
-  //   console.log("while 동작");
-  //   firstTurn.attack(target);
-  // }
-
 };
 
 
-// 전투 종료
+// 전투 종료 메서드
 Character.prototype.battleDone = function (type, target) {
 
+  // 전투 커맨드 OFF
+  command.off();
+  console.dir(battleMenu.classList);
+
   var self = this;
-  var target = target || ""
+  var target = target || player;
 
   // 패배로 인한 전투 종료인지 판단
   if (type === "defeat") {
-    log(`전투에서 패배했다...`, "def");
-    command.dungeon.on();
+    // 패배 시 경험치 30% 감소
+    player.exp = player.exp - Math.floor((player.exp * 30 / 100));
+    log(`☠️ 전투에서 패배했다... 경험치를 30% 잃어버렸다. (현재 경험치: ${player.exp} Exp)`, "def");
+
+    // 체력 회복
+    player.recovery();
+
+    setTimeout(function () {
+      log(`......`);
+    }, 1000);
+    setTimeout(function () {
+      log(`😥 잠시 쉬고 일어나 체력을 모두 회복했다. 다시 가보자!`);
+
+      // 던전 커맨드 ON
+      command.dungeon.on();
+    }, 2000);
+
     return false;
   }
 
   // 도망으로 인한 전투 종료인지 판단
   if (type === "escape") {
-    log(`전투에서 도망쳤다...`);
+    log(`💨 전투에서 도망쳤다...`);
     command.dungeon.on();
     return false;
   }
 
   // 승리로 인한 전투종료인 경우
-  log(`${target.name}을 물리쳤다!`, "vic");
+  log(`🎉 전투에서 승리했다! ${target.name}을 물리쳤다.`, "vic");
 
 
   // 보상으로 얻을 경험치와 골드 계산
-  var gainedExp = getRandom(5, 30) + (target.level * 60);
-  var gainedGold = getRandom(10, 50) + (target.level * 30);
+  var gainedExp = Math.floor(getRandom(5, 30) + (target.level * 60));
+  var gainedGold = Math.floor(getRandom(10, 50) + (target.level * 30));
 
 
   // 보상 획득
   self.exp += gainedExp;
   self.money += gainedGold;
-  log(`${gainedExp} Exp를 획득했다. (현재 경험치: ${self.exp} Exp)`);
-  log(`${gainedGold} 골드를 획득했다. (현재 소지금: ${self.money} 골드)`);
+  log(`👑 ${gainedExp} Exp를 획득했다. (현재 경험치: ${self.exp} Exp)`);
+  log(`💰 ${gainedGold} 골드를 획득했다. (현재 소지금: ${self.money} 골드)`);
 
 
   // 레벨업 판단
@@ -423,17 +419,30 @@ Character.prototype.battleDone = function (type, target) {
     self.levelUp();
   }
 
+  //배틀 종료
   battle = false;
   command.dungeon.on();
 
 }
 
 
+// 회복 메서드
+Character.prototype.recovery = function () {
+  // 휴식 시 체력 40% 회복
+  this.hp = this.hp + Math.floor((this.hp * 40 / 100));
+  //(단, 체대 체력을 초과할 수 없음)
+  if (this.hp >= this.maxHp) {
+    this.hp = this.maxHp;
+  }
+}
+
+
+// 레벨업 메서드
 Player.prototype.levelUp = function () {
 
   // 레벨 업
   this.level += 1;
-  log(`레벨 업! 레벨 ${this.level}이(가) 되었다.`, "lvup");
+  log(`🆙 레벨 업! 레벨 ${this.level}이(가) 되었다.`, "lvup");
 
   // 공격력 향상
   if (this.job === "마법사") {
@@ -462,20 +471,28 @@ Player.prototype.levelUp = function () {
     this.luk = (this.level * ctrl.levUpVal.luk) * (1 + ctrl.jobBonus[0] / 100);
   }
 
+  // 체력 향상
+  this.hp = (this.level * ctrl.levUpVal.hp[0]) + (this.level * ctrl.levUpVal.hp[1]);
+  this.maxHp = hp;
+
 }
 
-
+// 던전 입장
 var enterDungeon = function () {
-  log("...던전에 들어왔다...");
+  log("🥾 던전에 들어왔다...");
 
-  player.battleStart();
+  setTimeout(function () {
+    player.battleStart();
+  }, 1000);
 };
 
-
+// 던전 진행
 var nextDungeon = function () {
-  log("...던전 좀 더 깊숙하게 들어가본다...");
+  log("🧭 던전 좀 더 깊숙히 들어가본다...");
 
-  player.battleStart(1);
+  setTimeout(function () {
+    player.battleStart(3);
+  }, 1000);
 };
 
 
@@ -487,16 +504,19 @@ var command = {
   off: function () {
     battleMenu.classList.remove("on");
   },
-  atk: function () {
-    player.attack(monster);
+  atk: function (type) {
+    player.attack(monster, type);
     command.off();
 
-    setTimeout(function () {
-      if (monster.hp >= 0) {
+    if (monster.hp >= 0) {
+      setTimeout(function () {
         command.off();
         monster.attack(player);
-      }
-    }, 1000);
+      }, 1000);
+    }
+  },
+  recovery: function () {
+    player.recovery();
   },
   dungeon: {
     on: function () {
@@ -515,6 +535,9 @@ battleMenu.addEventListener("click", function (e) {
   if (e.target === battleMenu.children[0]) {
     command.atk();
   }
+  if (e.target === battleMenu.children[2]) {
+    command.atk("recovery");
+  }
 });
 dungeonMenu.addEventListener("click", function (e) {
   console.dir(e.target);
@@ -525,58 +548,13 @@ dungeonMenu.addEventListener("click", function (e) {
 
 
 
+
+
+// 새 플레이어 생성
+// var player = new Player(prompt("이름을 입력하세요."));
+var player = new Player("플록스");
+
+
+// 게임 시작
 enterDungeon();
 
-
-
-// // 공격받음 (상대 턴)
-// Character.prototype.attacked = function (damage) {
-
-//   var self = this;
-
-//   console.log(this.name, this.luk);
-
-
-//   // 회피 확률 계산
-//   var isEvade = function () {
-
-//     var evadeRate = 1;
-
-//     if (self.luk > target.luk) {
-//       evadeRate = 5;
-//     }
-//     if (self.luk >= (target.luk * 2)) {
-//       evadeRate = 30;
-//     }
-//     if (self.luk >= (target.luk * 3)) {
-//       evadeRate = 50;
-//     }
-
-//     if (getRandom() <= evadeRate) {
-//       console.log("랜덤", getRandom());
-//       console.log(self.name, evadeRate);
-//       return true;
-//     }
-
-//   };
-
-
-
-//   // 회피 여부
-//   if (isEvade()) {
-//     log(`${self.name}이(가) 공격을 회피했다.`);
-//     return false;
-//   }
-
-//   this.hp -= damage;
-
-//   // 플레이어 HP 판단
-//   if (this.hp >= 0) {
-//     log(`${damage}의 데미지를 입었다. (${this.name}의 HP: ${this.hp})`);
-//   } else {
-//     this.hp = 0
-//     log(`${damage}의 데미지를 입었다. (${this.name}의 HP: ${this.hp})`);
-//     this.battleDone("defeat");
-//   }
-
-// }
