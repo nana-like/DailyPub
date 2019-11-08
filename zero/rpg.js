@@ -60,9 +60,18 @@
 
     - 패배 시 경험치 잃어버리는 기능 🌕
     - 플레이어 레벨에 맞춰 몬스터 랜덤 등장 🌑
-    - 여관X 던전 내 회복으로 🌕
+    - 던전 내 회복 기능 추가 🌕
     - 항시 보여지는 스테이터스창 추가 🌑
     - UI 변경 (누구의 턴인지 알기 쉽게) 🌑
+    - 방어 기능 추가 🌑
+    - 도망 기능 추가 🌑
+    
+
+    (스탯)
+    (공/방/회 메뉴)
+    (다음 던전으로)
+    (나 / 적)
+    (로그)
 
     ****************************************
 
@@ -525,6 +534,11 @@ var command = {
     off: function () {
       dungeonMenu.classList.remove("on");
     },
+    recovery: function () {
+      player.recovery();
+      log(`😊 체력을 회복했다. (${player.name}의 HP: ${player.hp})`);
+
+    }
   }
 }
 
@@ -543,6 +557,9 @@ dungeonMenu.addEventListener("click", function (e) {
   console.dir(e.target);
   if (e.target === dungeonMenu.children[0]) {
     nextDungeon();
+  }
+  if (e.target === dungeonMenu.children[1]) {
+    command.dungeon.recovery();
   }
 });
 
