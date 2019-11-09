@@ -1,0 +1,275 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+@font-face {
+  font-family: "statFont";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_four@1.1/netmarbleM.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "logFont";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_eight@1.0/DOSMyungjo.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.wrap {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0px 30px;
+}
+
+strong {
+  display: block;
+}
+
+#log {
+  font-family: "logFont";
+  margin-top: 30px;
+  height: calc(100vh - 440px);
+  margin-bottom: 40px;
+  min-height: 200px;
+  border: 1px solid rgba(138, 138, 138, 0.653);
+  padding: 30px;
+  overflow: scroll;
+  box-sizing: border-box;
+  color: #333;
+
+  p {
+    line-height: 180%;
+  }
+}
+
+.info-basic {
+  flex-basis: 5%;
+}
+
+.info-health {
+  flex-basis: 20%;
+}
+
+.info-level {
+  flex-basis: 12%;
+}
+
+.info-history {
+  flex-basis: 5%;
+}
+
+.status {
+  color: #333;
+  font-size: 14px;
+  font-family: "statFont";
+  display: flex;
+  margin-top: 40px;
+  padding-bottom: 25px;
+  border-bottom: 1px solid rgba(196, 196, 196, 0.653);
+
+  &-name {
+    font-weight: bold;
+    font-size: 20px;
+  }
+
+  &-job {
+    margin: 4px 0;
+  }
+
+  .info {
+    flex-grow: 1;
+    padding: 0 30px;
+  }
+
+  &-level,
+  &-exp {
+    display: flex;
+    align-items: flex-end;
+
+    .title {
+      margin-right: 12px;
+    }
+
+    .contents {
+      font-size: 120%;
+    }
+  }
+
+  &-exp {
+    align-items: center;
+    margin-top: 4px;
+    padding-bottom: 15px;
+    .contents {
+      position: relative;
+      width: 100%;
+    }
+    .bar {
+      width: 100%;
+      height: 6px;
+      background-color: #e4e4e4;
+    }
+
+    .currentBar {
+      height: 100%;
+      background-color: #333;
+    }
+
+    .expText {
+      margin-top: 5px;
+      font-size: 60%;
+      text-align: center;
+    }
+  }
+
+  &-hp {
+    position: relative;
+    .title {
+      font-size: 105%;
+      margin-top: 2px;
+    }
+    .contents {
+      margin-top: 8px;
+      position: relative;
+      width: 100%;
+    }
+    .bar {
+      width: 100%;
+      height: 10px;
+      background-color: #e4e4e4;
+    }
+
+    .currentBar {
+      height: 100%;
+      background-color: rgb(221, 67, 67);
+    }
+
+    .expText {
+      margin-top: 5px;
+      font-size: 60%;
+      text-align: center;
+    }
+  }
+
+  .heart {
+    display: flex;
+    .heartIcon {
+      display: block;
+      flex-grow: 1;
+      font-size: 20px;
+    }
+  }
+  .heart-current {
+    position: absolute;
+    color: red;
+  }
+}
+
+.info-ability,
+.info-history {
+  [class^="status-"] {
+    display: flex;
+  }
+  .title {
+    margin-bottom: 4px;
+    margin-right: 8px;
+  }
+}
+
+.info-ability {
+  .title {
+    min-width: 42px;
+    margin-right: 10px;
+  }
+}
+
+.info-history {
+  .title {
+    min-width: 30px;
+  }
+  [class$="val"] {
+    color: #444;
+  }
+  .status-victory,
+  .status-defeat {
+    text-align: right;
+    &:after {
+      display: inline-block;
+      content: "회";
+    }
+  }
+}
+
+.menuPosition {
+  min-height: 58px;
+  margin: 40px 0;
+  display: flex;
+  justify-content: center;
+}
+.menu {
+  display: flex;
+  justify-content: center;
+  position: absolute;
+
+  button {
+    font-family: "statFont";
+    font-size: 14px;
+    border-radius: 4px;
+    border: 1px solid #555;
+    padding: 8px 15px;
+    color: #333;
+    cursor: pointer;
+    margin-left: 8px;
+
+    &:first-child {
+      margin-left: 0;
+    }
+
+    &:hover {
+      background-color: #352fa7;
+      border-color: #352fa7;
+      color: #fff;
+    }
+  }
+}
+
+.scene {
+  position: relative;
+  font-size: 58px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .vs {
+    font-size: 28px;
+    margin: 0 20px;
+  }
+
+  .player,
+  .monster {
+    opacity: 0.5;
+    transform: scale(0.7);
+  }
+
+  .turnOwner {
+    opacity: 1;
+    transform: scale(1.1);
+
+    // &:before {
+    //   display: block;
+    //   position: absolute;
+    //   top: -28px;
+    //   left: 12px;
+    //   font-size: 28px;
+    //   content: "⚔️";
+    // }
+  }
+
+  .turnNoti {
+    font-size: 28px;
+    position: absolute;
+    top: -28px;
+    left: 50%;
+    margin-left: -15px;
+  }
+}

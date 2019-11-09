@@ -65,6 +65,7 @@
     - UI 변경 (누구의 턴인지 알기 쉽게) 🌑
     - 방어 기능 추가 🌑
     - 도망 기능 추가 🌑
+    - 최초 이름 입력 / 직업 선택 팝업? 추가 🌑
     
 
     (스탯)
@@ -249,7 +250,7 @@ Character.prototype.attack = function (target, type) {
 
     // 크리티컬 여부
     if (isCritical()) {
-      log(`💥 크리티컬 히트!`, "cri");
+      log(`⚡️ 크리티컬 히트!`, "cri");
       damage *= 2;
     } else {
       // 크리티컬이 없었다면 회피 여부 판단
@@ -265,11 +266,11 @@ Character.prototype.attack = function (target, type) {
 
     // HP 판단
     if (target.hp >= 0) {
-      log(`⚔️ ${target.name}에게 ${damage}의 데미지를 입혔다. (${target.name}의 HP: ${target.hp})`, "atk");
+      log(`💥 ${target.name}에게 ${damage}의 데미지를 입혔다. (${target.name}의 HP: ${target.hp})`, "atk");
     } else {
       // 대상의 HP가 0 이하라면
       target.hp = 0
-      log(`⚔️ ${target.name}에게 ${damage}의 데미지를 입혔다. (${target.name}의 HP: ${target.hp})`, "atk");
+      log(`💥 ${target.name}에게 ${damage}의 데미지를 입혔다. (${target.name}의 HP: ${target.hp})`, "atk");
 
       //배틀 종료
       battle = false;
@@ -346,14 +347,14 @@ Character.prototype.battleStart = function (lv) {
 
   // 몬스터 생성
   monster = makeMonster(lv);
-  log(`👻 ${monster.name}이 나타났다...!`);
+  log(`👻 ${monster.name}이(가) 나타났다...!`);
 
   // 선공 후공 결정
   if (getRandom() <= 50) {
     // 플레이어 선공
     turnMaster = player;
     command.on();
-    log(`😁 선공이다! ${turnMaster.name}은(는) ${monster.name}을 먼저 공격할 수 있다.`);
+    log(`😁 선공이다! ${turnMaster.name}은(는) ${monster.name}을(를) 먼저 공격할 수 있다.`);
   } else {
     // 플레이어 후공
     turnMaster = monster;
@@ -420,11 +421,11 @@ Character.prototype.battleDone = function (type, target) {
   self.exp += gainedExp;
   self.money += gainedGold;
   log(`👑 ${gainedExp} Exp를 획득했다. (현재 경험치: ${self.exp} Exp)`);
-  log(`💰 ${gainedGold} 골드를 획득했다. (현재 소지금: ${self.money} 골드)`);
+  log(`💰 ${gainedGold} Gold를 획득했다. (현재 소지금: ${self.money} Gold)`);
 
 
   // 레벨업 판단
-  if (this.exp >= (50 + this.level * 80)) {
+  if (this.exp >= (this.level * 20) + this.level * 100) {
     self.levelUp();
   }
 
