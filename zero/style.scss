@@ -39,6 +39,7 @@ strong {
   color: #333;
 
   p {
+    font-size: 14px;
     line-height: 180%;
   }
 }
@@ -71,6 +72,14 @@ strong {
   &-name {
     font-weight: bold;
     font-size: 20px;
+  }
+
+  &-money {
+    &:after {
+      display: inline-block;
+      margin-left: 4px;
+      content: " Gold";
+    }
   }
 
   &-job {
@@ -202,7 +211,7 @@ strong {
 
 .menuPosition {
   min-height: 58px;
-  margin: 40px 0;
+  margin: 40px 0 10px;
   display: flex;
   justify-content: center;
 }
@@ -220,6 +229,7 @@ strong {
     color: #333;
     cursor: pointer;
     margin-left: 8px;
+    outline: 0;
 
     &:first-child {
       margin-left: 0;
@@ -231,6 +241,22 @@ strong {
       color: #fff;
     }
   }
+}
+
+.menu {
+  opacity: 0.5;
+  pointer-events: none;
+  visibility: visible;
+}
+
+.menu.on {
+  opacity: 1;
+  pointer-events: initial;
+}
+
+.menu.hide {
+  visibility: hidden;
+  opacity: 0;
 }
 
 .scene {
@@ -266,10 +292,57 @@ strong {
   }
 
   .turnNoti {
+    display: none;
     font-size: 28px;
     position: absolute;
     top: -28px;
     left: 50%;
     margin-left: -15px;
   }
+}
+
+.msg-atk {
+  color: #a41e53;
+}
+
+.msg-cri {
+  color: rgb(228, 10, 10);
+  font-weight: bold;
+}
+
+.msg-vic,
+.msg-def {
+  color: #222;
+  font-weight: bold;
+}
+
+.msg-vic {
+  color: rgba(30, 30, 177, 0.797);
+}
+
+.msg-lvup {
+  background-color: rgb(245, 229, 229);
+  padding: 4px;
+}
+
+.msg-fail {
+  color: #aaa;
+}
+
+.msg-appear {
+  font-weight: bold;
+  font-size: 110% !important;
+  text-decoration: underline;
+}
+
+.msg-gainExp {
+  color: rgb(192, 131, 0);
+}
+
+.msg-gainMoney {
+  color: rgb(17, 174, 107);
+}
+
+.msg-tryToAtk {
+  color: #d96868;
 }

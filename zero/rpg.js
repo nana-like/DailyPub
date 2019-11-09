@@ -91,13 +91,16 @@ var turnMaster;
 // 셀렉터
 var battleMenu = document.querySelector(".battleMenu");
 var dungeonMenu = document.querySelector(".dungeonMenu");
+var playerChar = document.querySelector(".player");
+var monsterChar = document.querySelector(".monster");
+
 
 // 밸런스 컨트롤러
 var ctrl = {
   // 레벨업 시 상승하는 스테이터스
   levUpVal: {
     hp: [50, 10], // (레벨*50) + (레벨*10)
-    atk: 30, // (레벨*30) + 보정
+    atk: 40, // (레벨*30) + 보정
     def: 40, // (레벨*40) + 보정
     luk: 10 // (레벨*10) + 보정
   },
@@ -123,35 +126,12 @@ var getRandom = function (min, max) {
 
 
 // 로그 출력
-var log = function (msg, type) {
-  var className;
-  switch (type) {
-    case "atk":
-      className = "msg-atk";
-      break;
-    case "cri":
-      className = "msg-cri";
-      break;
-    case "vic":
-      className = "msg-vic";
-      break;
-    case "def":
-      className = "msg-def";
-      break;
-    case "lvup":
-      className = "msg-lvup";
-      break;
-    case "monster":
-      className = "msg-monster";
-      break;
-    default:
-      className = "msg"
-  }
+var log = function (msg, className) {
   var p = document.createElement("p");
+  var className = "msg-" + className;
   p.innerHTML = msg;
   p.classList.add(className);
-  p.style.fontSize = "14px";
-  document.getElementById("log").appendChild(p);
+  document.getElementById("log").prepend(p);
 }
 
 
@@ -176,11 +156,12 @@ var Character = function (name, level, hp, atk, def, luk) {
 }
 
 // 플레이어 생성자 (exp, job, money)
-var Player = function (name, level, hp, atk, def, luk, exp, job, money) {
+var Player = function (name, level, hp, atk, def, luk, exp, job, money, goalExp) {
   Character.apply(this, arguments);
   this.exp = exp || 0;
   this.job = job || "마법사";
   this.money = money || 0;
+  this.goalExp = 120;
 }
 
 // 프로토타입 연결
@@ -235,7 +216,7 @@ Character.prototype.attack = function (target, type) {
 
   // 공격 시작
   var battleOn = function () {
-    log(`🗡 ${self.name}이(가) ${target.name}을(를) 공격한다.`);
+    log(`🗡 ${self.name}이(가) ${target.name}을(를) 공격한다.`, "tryToAtk");
   }
 
   // 공격 결과 판정
@@ -243,7 +224,7 @@ Character.prototype.attack = function (target, type) {
 
     // 공격 실패
     if (damage <= 0) {
-      log(`😓 공격에 실패했다...`);
+      log(`😓 공격에 실패했다...`, "fail");
       command.off();
       return false;
     }
@@ -255,7 +236,7 @@ Character.prototype.attack = function (target, type) {
     } else {
       // 크리티컬이 없었다면 회피 여부 판단
       if (isEvade()) {
-        log(`🍃 ${target.name}이(가) 공격을 회피했다.`);
+        log(`🍃 ${target.name}이(가) 공격을 회피했다.`, "fail");
         return false;
       }
     }
@@ -289,6 +270,7 @@ Character.prototype.attack = function (target, type) {
   // 회복 메서드인 경우
   if (type === "recovery") {
     log(`💤 이번 턴에 ${this.name}은(는) 휴식을 취한다.`);
+    playerChar.classList.remove("turnOwner");
 
     setTimeout(function () {
       self.recovery();
@@ -301,6 +283,7 @@ Character.prototype.attack = function (target, type) {
   // 1. 몬스터가 공격하는 경우
   if (target.__proto__ === Player.prototype) {
 
+
     if (self.hp <= 0) {
       // 공격 시점에서 hp가 0 이하라면 중단
       return false;
@@ -311,6 +294,7 @@ Character.prototype.attack = function (target, type) {
 
     // 공격 메시지 출력
     setTimeout(function () {
+      monsterChar.classList.add("turnOwner");
       battleOn();
     }, 1500);
 
@@ -323,6 +307,9 @@ Character.prototype.attack = function (target, type) {
       }
       // 메뉴 ON
       command.on();
+
+      playerChar.classList.add("turnOwner");
+      monsterChar.classList.remove("turnOwner");
     }, 2500);
   } else {
     // 2. 내가 공격하는 경우
@@ -336,6 +323,7 @@ Character.prototype.attack = function (target, type) {
       battleResult();
       // 메뉴 OFF
       command.off();
+      playerChar.classList.remove("turnOwner");
     }, 1000);
   }
 
@@ -345,20 +333,28 @@ Character.prototype.attack = function (target, type) {
 // 전투 시작 메서드
 Character.prototype.battleStart = function (lv) {
 
+  //전투 커맨드 노출
+  command.show();
+
+  //던전 커맨드 숨기기
+  command.dungeon.hide();
+
   // 몬스터 생성
   monster = makeMonster(lv);
-  log(`👻 ${monster.name}이(가) 나타났다...!`);
+  log(`👻 ${monster.name}이(가) 나타났다...!`, "appear");
 
   // 선공 후공 결정
   if (getRandom() <= 50) {
     // 플레이어 선공
     turnMaster = player;
     command.on();
+    playerChar.classList.add("turnOwner");
     log(`😁 선공이다! ${turnMaster.name}은(는) ${monster.name}을(를) 먼저 공격할 수 있다.`);
   } else {
     // 플레이어 후공
     turnMaster = monster;
     command.off();
+    monsterChar.classList.add("turnOwner");
     log(`😰 기습이다! ${turnMaster.name}이(가) 먼저 공격해 올 것이다.`);
     turnMaster.attack(player);
   }
@@ -420,18 +416,31 @@ Character.prototype.battleDone = function (type, target) {
   // 보상 획득
   self.exp += gainedExp;
   self.money += gainedGold;
-  log(`👑 ${gainedExp} Exp를 획득했다. (현재 경험치: ${self.exp} Exp)`);
-  log(`💰 ${gainedGold} Gold를 획득했다. (현재 소지금: ${self.money} Gold)`);
+  log(`👑 ${gainedExp} Exp를 획득했다.`, "gainExp");
+  log(`💰 ${gainedGold} Gold를 획득했다.`, "gainMoney");
+
+  //프로필에 반영
+  profileUpdate_basic();
+  profileUpdate_level();
 
 
   // 레벨업 판단
-  if (this.exp >= (this.level * 20) + this.level * 100) {
+  if (this.exp >= this.goalExp) {
     self.levelUp();
   }
 
   //배틀 종료
   battle = false;
+
+  //전투 커맨드 숨기기
+  command.hide();
+
+  //던전 커맨드 노출
+  command.dungeon.show();
   command.dungeon.on();
+  playerChar.classList.remove("turnOwner");
+  monsterChar.classList.remove("turnOwner");
+
 
 }
 
@@ -483,25 +492,52 @@ Player.prototype.levelUp = function () {
 
   // 체력 향상
   this.hp = (this.level * ctrl.levUpVal.hp[0]) + (this.level * ctrl.levUpVal.hp[1]);
-  this.maxHp = hp;
+  this.maxHp = this.hp;
+
+  // 목표 경험치 반영
+  this.exp = 0;
+  this.goalExp = (this.level * 30) + (this.level * 120);
+
+  // 프로필에 반영
+  profileUpdate_level();
+  profileUpdate_basic();
+  console.dir(this.exp)
+  console.dir(this.goalExp)
 
 }
 
+// 스테이터스 프로필 업데이트
+var profileUpdate_basic = function () {
+  var infoBasic = document.querySelector(".info-basic");
+  var infoBasicVal = [player.name, player.job, player.money];
+  infoBasicVal.forEach(function (val, index) {
+    infoBasic.children[index].innerHTML = val;
+  });
+}
+
+var profileUpdate_level = function () {
+  var infoLevel = document.querySelector(".info-level");
+  var expPercent = Math.floor((player.exp * 100) / player.goalExp);
+  infoLevel.children[0].children[1].innerHTML = player.level;
+  infoLevel.children[1].children[1].children[0].children[0].style.width = expPercent + "%";
+  infoLevel.children[1].children[1].children[0].children[1].innerHTML = `${player.exp} / ${player.goalExp} (${expPercent}%)`;
+}
 // 던전 입장
 var enterDungeon = function () {
   log("🥾 던전에 들어왔다...");
+  profileUpdate_basic();
+  profileUpdate_level();
 
-  setTimeout(function () {
-    player.battleStart();
-  }, 1000);
+  command.hide();
+  command.dungeon.on();
 };
 
 // 던전 진행
 var nextDungeon = function () {
-  log("🧭 던전 좀 더 깊숙히 들어가본다...");
+  log("🧭 던전 안을 향해 들어가본다...");
 
   setTimeout(function () {
-    player.battleStart(3);
+    player.battleStart();
   }, 1000);
 };
 
@@ -513,6 +549,12 @@ var command = {
   },
   off: function () {
     battleMenu.classList.remove("on");
+  },
+  show: function () {
+    battleMenu.classList.remove("hide");
+  },
+  hide: function () {
+    battleMenu.classList.add("hide");
   },
   atk: function (type) {
     player.attack(monster, type);
@@ -535,10 +577,24 @@ var command = {
     off: function () {
       dungeonMenu.classList.remove("on");
     },
+    show: function () {
+      dungeonMenu.classList.remove("hide");
+    },
+    hide: function () {
+      dungeonMenu.classList.add("hide");
+    },
     recovery: function () {
       player.recovery();
       log(`😊 체력을 회복했다. (${player.name}의 HP: ${player.hp})`);
 
+    }
+  },
+  scene: {
+    monsterShow: function () {
+      monsterChar.classList.add("show");
+    },
+    monsterHide: function () {
+      monsterChar.classList.remove("show");
     }
   }
 }
