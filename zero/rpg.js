@@ -61,18 +61,16 @@
     - 패배 시 경험치 잃어버리는 기능 🌕
     - 플레이어 레벨에 맞춰 몬스터 랜덤 등장 🌑
     - 던전 내 회복 기능 추가 🌕
-    - 항시 보여지는 스테이터스창 추가 🌑
-    - UI 변경 (누구의 턴인지 알기 쉽게) 🌑
+    - 항시 보여지는 스테이터스창 추가 🌕
+    - UI 변경 (누구의 턴인지 알기 쉽게) 🌕
+
+
+
+    // 나중에 추가....?
     - 방어 기능 추가 🌑
     - 도망 기능 추가 🌑
     - 최초 이름 입력 / 직업 선택 팝업? 추가 🌑
-    
 
-    (스탯)
-    (공/방/회 메뉴)
-    (다음 던전으로)
-    (나 / 적)
-    (로그)
 
     ****************************************
 
@@ -93,6 +91,7 @@ var battleMenu = document.querySelector(".battleMenu");
 var dungeonMenu = document.querySelector(".dungeonMenu");
 var playerChar = document.querySelector(".player");
 var monsterChar = document.querySelector(".monster");
+var logArea = document.getElementById("log");
 
 
 // 밸런스 컨트롤러
@@ -100,7 +99,7 @@ var ctrl = {
   // 레벨업 시 상승하는 스테이터스
   levUpVal: {
     hp: [50, 10], // (레벨*50) + (레벨*10)
-    atk: 40, // (레벨*30) + 보정
+    atk: 25, // (레벨*25) + 보정
     def: 40, // (레벨*40) + 보정
     luk: 10 // (레벨*10) + 보정
   },
@@ -109,13 +108,21 @@ var ctrl = {
 }
 
 // 몬스터 리스트
-var monsterList = [
+var monsterList = {
   //이름, 레벨, HP, 공격력, 방어력, 행운
-  ["슬라임", 1, 50, 45, 10, 20],
-  ["늑대", 2, 80, 50, 15, 5],
-  ["고블린", 3, 130, 80, 46, 31],
-  ["마왕", 30, 1030, 200, 300, 0]
-]
+  0: [
+    ["슬라임", 1, 50, 45, 10, 0],
+    ["여우", 2, 80, 50, 15, 15]
+  ],
+  1: [
+    ["늑대", 2, 110, 70, 24, 0],
+    ["고블린", 3, 130, 65, 39, 30]
+  ],
+  2: [
+    ["그리즐리 베어", 3, 140, 80, 31, 0],
+    ["고블린 전사", 4, 160, 90, 45, 80]
+  ]
+}
 
 // 난수 생성
 var getRandom = function (min, max) {
@@ -128,10 +135,11 @@ var getRandom = function (min, max) {
 // 로그 출력
 var log = function (msg, className) {
   var p = document.createElement("p");
-  var className = "msg-" + className;
+  var className = className || "normal";
+  className = "msg-" + className;
   p.innerHTML = msg;
   p.classList.add(className);
-  document.getElementById("log").prepend(p);
+  logArea.prepend(p);
 }
 
 
@@ -139,7 +147,7 @@ var log = function (msg, className) {
 var makeMonster = function (lv) {
   var lv = lv || 0;
   var newMonster = new Character();
-  Character.apply(newMonster, monsterList[lv]);
+  Character.apply(newMonster, monsterList[lv][0]);
   return newMonster;
 }
 
@@ -156,12 +164,14 @@ var Character = function (name, level, hp, atk, def, luk) {
 }
 
 // 플레이어 생성자 (exp, job, money)
-var Player = function (name, level, hp, atk, def, luk, exp, job, money, goalExp) {
+var Player = function (name, level, hp, atk, def, luk, exp, job, money, goalExp, vicCount, defCount) {
   Character.apply(this, arguments);
   this.exp = exp || 0;
   this.job = job || "마법사";
   this.money = money || 0;
   this.goalExp = 120;
+  this.vicCount = vicCount || 0;
+  this.defCount = defCount || 0;
 }
 
 // 프로토타입 연결
@@ -244,6 +254,7 @@ Character.prototype.attack = function (target, type) {
 
     // 공격 성공 시 데미지 입힘
     target.hp -= damage;
+    profileUpdate_health();
 
     // HP 판단
     if (target.hp >= 0) {
@@ -380,17 +391,22 @@ Character.prototype.battleDone = function (type, target) {
     // 패배 시 경험치 30% 감소
     player.exp = player.exp - Math.floor((player.exp * 30 / 100));
     log(`☠️ 전투에서 패배했다... 경험치를 30% 잃어버렸다. (현재 경험치: ${player.exp} Exp)`, "def");
-
-    // 체력 회복
-    player.recovery();
+    command.off();
+    player.defCount++;
+    profileUpdate_history();
 
     setTimeout(function () {
       log(`......`);
     }, 1000);
     setTimeout(function () {
       log(`😥 잠시 쉬고 일어나 체력을 모두 회복했다. 다시 가보자!`);
+      // 체력 회복
+      player.hp = player.maxHp;
+      profileUpdate_health();
 
       // 던전 커맨드 ON
+      command.hide();
+      command.dungeon.show();
       command.dungeon.on();
     }, 2000);
 
@@ -406,6 +422,7 @@ Character.prototype.battleDone = function (type, target) {
 
   // 승리로 인한 전투종료인 경우
   log(`🎉 전투에서 승리했다! ${target.name}을 물리쳤다.`, "vic");
+  player.vicCount++;
 
 
   // 보상으로 얻을 경험치와 골드 계산
@@ -422,6 +439,7 @@ Character.prototype.battleDone = function (type, target) {
   //프로필에 반영
   profileUpdate_basic();
   profileUpdate_level();
+  profileUpdate_history();
 
 
   // 레벨업 판단
@@ -453,6 +471,8 @@ Character.prototype.recovery = function () {
   if (this.hp >= this.maxHp) {
     this.hp = this.maxHp;
   }
+  //프로필에 반영
+  profileUpdate_health();
 }
 
 
@@ -501,8 +521,7 @@ Player.prototype.levelUp = function () {
   // 프로필에 반영
   profileUpdate_level();
   profileUpdate_basic();
-  console.dir(this.exp)
-  console.dir(this.goalExp)
+  profileUpdate_health();
 
 }
 
@@ -522,11 +541,35 @@ var profileUpdate_level = function () {
   infoLevel.children[1].children[1].children[0].children[0].style.width = expPercent + "%";
   infoLevel.children[1].children[1].children[0].children[1].innerHTML = `${player.exp} / ${player.goalExp} (${expPercent}%)`;
 }
+
+
+var profileUpdate_health = function () {
+  var infoHealth = document.querySelector(".status-hp");
+  var hpPercent = Math.floor((player.hp * 100) / player.maxHp);
+  if (hpPercent <= 0) {
+    hpPercent = 0;
+  }
+  infoHealth.children[1].children[0].children[0].style.width = hpPercent + "%";
+  infoHealth.children[1].children[0].children[1].innerHTML = `${player.hp} / ${player.maxHp} (${hpPercent}%)`;
+}
+
+
+var profileUpdate_history = function () {
+  var infoHistory = document.querySelector(".info-history");
+  infoHistory.children[0].children[1].innerHTML = player.vicCount;
+  infoHistory.children[1].children[1].innerHTML = player.defCount;
+}
+
+
+
 // 던전 입장
 var enterDungeon = function () {
   log("🥾 던전에 들어왔다...");
   profileUpdate_basic();
   profileUpdate_level();
+  profileUpdate_health();
+  profileUpdate_history();
+
 
   command.hide();
   command.dungeon.on();
@@ -535,9 +578,17 @@ var enterDungeon = function () {
 // 던전 진행
 var nextDungeon = function () {
   log("🧭 던전 안을 향해 들어가본다...");
+  command.dungeon.off();
 
   setTimeout(function () {
-    player.battleStart();
+    var random = getRandom(-3, 3);
+    var monsterLevel = player.level + random;
+    if (monsterLevel <= 0) {
+      monsterLevel = 0;
+    } else if (monsterLevel >= 2) {
+      monsterLevel = 2;
+    }
+    player.battleStart(monsterLevel);
   }, 1000);
 };
 
@@ -606,7 +657,7 @@ battleMenu.addEventListener("click", function (e) {
   if (e.target === battleMenu.children[0]) {
     command.atk();
   }
-  if (e.target === battleMenu.children[2]) {
+  if (e.target === battleMenu.children[1]) {
     command.atk("recovery");
   }
 });
@@ -625,8 +676,8 @@ dungeonMenu.addEventListener("click", function (e) {
 
 
 // 새 플레이어 생성
-// var player = new Player(prompt("이름을 입력하세요."));
-var player = new Player("플록스");
+var player = new Player(prompt("이름을 입력하세요."));
+// var player = new Player("플록스");
 
 
 // 게임 시작
