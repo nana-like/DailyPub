@@ -80,16 +80,17 @@ var monsterList = {
   0: [
     ["슬라임", 1, 40, 45, 10, 0],
     ["너구리", 2, 54, 52, 15, 20],
-    ["여우", 2, 66, 50, 20, 11]
+    ["여우", 2, 61, 50, 20, 11]
   ],
   1: [
-    ["늑대", 2, 80, 61, 22, 18],
-    ["고블린", 3, 75, 65, 39, 30],
-    ["고블린 마법사", 3, 78, 71, 36, 30],
-    ["고블린 전사", 3, 81, 65, 46, 30]
+    ["늑대", 2, 70, 81, 28, 18],
+    ["고블린", 3, 75, 84, 39, 30],
+    ["고블린 마법사", 3, 78, 91, 46, 30],
+    ["고블린 전사", 3, 81, 88, 67, 30]
   ],
   2: [
-    ["그리즐리 베어", 4, 100, 80, 31, 0]
+    ["사나운 늑대", 3, 91, 92, 50, 20],
+    ["그리즐리 베어", 4, 100, 100, 31, 14],
   ]
 }
 
@@ -110,17 +111,6 @@ var log = function (msg, className) {
   p.classList.add(className);
   logArea.prepend(p);
 }
-
-
-// 몬스터 생성 함수
-var makeMonster = function (lv) {
-  var lv = lv || 0;
-  var newMonster = new Character();
-  var random = getRandom(0, (monsterList[lv].length - 1));
-  Character.apply(newMonster, monsterList[lv][random]);
-  return newMonster;
-}
-
 
 // 캐릭터 생성자 
 var Character = function (name, level, hp, atk, def, luk) {
@@ -148,6 +138,17 @@ var Player = function (name, level, hp, atk, def, luk, exp, job, money, goalExp,
 // 프로토타입 연결
 Player.prototype = Object.create(Character.prototype);
 Player.prototype.constructor = Player;
+
+
+// 몬스터 생성 함수
+var makeMonster = function (lv) {
+  var lv = lv || 0;
+  var newMonster = new Character();
+  var random = getRandom(0, (monsterList[lv].length - 1));
+  Character.apply(newMonster, monsterList[lv][random]);
+  return newMonster;
+}
+
 
 
 // 공격 메서드
@@ -394,7 +395,6 @@ Character.prototype.battleDone = function (type, target) {
 
   // 전투 커맨드 OFF
   command.off();
-  console.dir(battleMenu.classList);
 
   var self = this;
   var target = target || player;
@@ -440,7 +440,7 @@ Character.prototype.battleDone = function (type, target) {
   }
 
   // 승리로 인한 전투종료인 경우
-  log(`🎉 전투에서 승리했다! ${target.name}을 물리쳤다.`, "vic");
+  log(`🎉 전투에서 승리했다! ${target.name}을(를) 물리쳤다.`, "vic");
   player.vicCount++;
 
 
@@ -606,8 +606,8 @@ var nextDungeon = function () {
     var monsterLevel = player.level - 1;
     if (monsterLevel <= 0) {
       monsterLevel = 0;
-    } else if (monsterLevel >= 2) {
-      monsterLevel = 2;
+    } else if (monsterLevel >= 3) {
+      monsterLevel = 3;
     }
     player.battleStart(monsterLevel);
   }, 1000);
@@ -699,8 +699,8 @@ dungeonMenu.addEventListener("click", function (e) {
 
 
 // 새 플레이어 생성
-var player = new Player(prompt("이름을 입력하세요."));
-// var player = new Player("나나");
+// var player = new Player(prompt("이름을 입력하세요."));
+var player = new Player("나나");
 
 
 // 게임 시작

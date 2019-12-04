@@ -1,0 +1,58 @@
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+  }
+
+  .parent {
+    position: relative;
+    margin: 50px;
+    padding: 50px;
+    height: 500px;
+    border: 10px solid #3C3530;
+    overflow: auto;
+  }
+
+  .child {
+    padding: 50px;
+    width: 800px;
+    height: 1000px;
+  }
+
+  .box {
+    width: 100px;
+    height: 100px;
+    padding: 50px;
+    border: 50px solid #F16B6F;
+    margin: 50px;
+    /* transform: scale(2); */
+  }
+</style>
+
+<div class="parent">
+  <!-- <div class="child">
+    Nanalike
+  </div> -->
+  <div class="box">Nanalike</div>
+</div>
+
+
+
+<script>
+  var box = document.querySelector(".box");
+  var parent = document.querySelector(".parent");
+  var child = document.querySelector(".child");
+  // console.dir(box.getBoundingClientRect());
+  // console.dir(box);
+  // console.dir(box.offsetWidth === box.getBoundingClientRect().width); //TURE
+
+  console.dir(parent.offsetLeft);
+
+  //trf scale(2)를 했을 때..
+  // console.dir(box.offsetWidth); //300
+  // console.dir(box.getBoundingClientRect().width); //600
+
+  // console.dir(parent);
+  // console.dir(parent.scrollWidth);
+  // console.dir(parent.scrollHeight);
+</script>
