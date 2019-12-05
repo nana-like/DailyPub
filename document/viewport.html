@@ -1,0 +1,156 @@
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+  }
+
+  .parent {
+    width: 500px;
+    height: 500px;
+    overflow: auto;
+    border: 10px solid salmon;
+  }
+
+  .child {
+    width: 1200px;
+    height: 1200px;
+    background-color: #ffe3e3;
+  }
+
+  body {
+    /* padding: 30px; */
+  }
+
+  .box {
+    /* width: 300px;
+  height: 300px; */
+    margin-top: 100px;
+    margin-bottom: 600px;
+    height: 360px;
+    padding: 0 20px;
+    background: lightsalmon;
+    font-size: 19.5px;
+    overflow: hidden;
+    /* margin-bottom: 300px; */
+    /* width: 3000px; */
+    /* height: 3000px;*/
+    /* padding: 20px; */
+    /* border: 10px solid salmon; */
+  }
+
+  .box2 {
+    margin-bottom: 300px;
+    background: lightsalmon;
+  }
+
+  .show {
+    opacity: 1;
+  }
+
+  body {
+    /* padding: 50px; */
+  }
+
+  .nana {
+    margin-top: 100px;
+    font-size: 50px;
+    text-align: center;
+  }
+
+  .like {
+    margin-bottom: 300px;
+    height: 500px;
+    outline: 1px dashed #aaa;
+    background-color: lightgoldenrodyellow;
+  }
+
+  .hey {
+    margin-top: 300px;
+    margin-bottom: 500px;
+    height: 300px;
+    outline: 1px dashed #aaa;
+    background-color: lightseagreen;
+  }
+
+  .fix {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    padding: 20px;
+    background-color: #ffe7e7;
+    outline: 1px solid rgb(126, 41, 41);
+    /* box-shadow: 3px 10px 40px #fafafa; */
+  }
+</style>
+
+
+<!-- <div class="box target">
+  <h1>Nanalike</h1>
+  <p>Lorem consequat duis eu cillum duis quis ipsum irure Lorem laborum. Laboris minim do laboris deserunt ipsum nisi
+    ipsum ullamco ea. Aute veniam reprehenderit veniam fugiat tempor. Anim quis minim velit excepteur. Ad eu laboris
+    pariatur proident sint.</p>
+  <p>Ullamco ipsum consequat minim minim dolore nulla tempor labore eu sit et eu. Minim ipsum est cupidatat ea deserunt
+    in velit dolore dolore velit nostrud. Sint ea reprehenderit laborum laboris incididunt mollit id magna adipisicing
+    pariatur incididunt ut nostrud. Laboris adipisicing sit laborum voluptate sint dolor commodo mollit. Aute
+    exercitation dolore id ut mollit in cillum sint eiusmod quis labore non sint. Officia dolore voluptate id aliqua.
+  </p>
+</div> -->
+
+<div class="fix">
+  <!-- Document Height : <span class="doc"></span><br /> -->
+  Window Height : <span class="win"></span>
+</div>
+
+<div class="nana">
+  <div class="like ">
+    My Height : 500px
+  </div>
+  <div class="hey target">
+    My Height : 300px
+  </div>
+</div>
+
+<!-- <h1>Nanalike</h1>
+<div class="box box1">Box</div>
+<div class="box box2">Box</div> -->
+
+<!-- <div class="parent">
+  <div class="child">Nanalike</div>
+</div> -->
+
+<script>
+  var target = document.querySelector(".target");
+
+  function getVal(e) {
+    var val1 = e.getBoundingClientRect().top;
+    var val2 = window.pageYOffset;
+    console.log("getBoundingClientRect().top: ", val1);
+    console.log("pageYOffset: ", val2);
+    var val3 = val1 + val2;
+    console.log("top + Yoffset: ", val3);
+  }
+
+  function getPageYOffset() {}
+
+  function getDocHeight() {
+    var doc = document.querySelector(".doc");
+    doc.innerHTML = document.body.clientHeight
+
+  }
+
+  function getWinHeight() {
+    var win = document.querySelector(".win");
+    win.innerHTML = window.innerHeight;
+  }
+
+
+  function init() {
+    getVal(target);
+    // getPageYOffset();
+    getWinHeight();
+  }
+
+  window.addEventListener("load", init);
+  window.addEventListener("scroll", init);
+  window.addEventListener("resize", init);
+</script>

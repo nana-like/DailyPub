@@ -1,0 +1,151 @@
+<div class="wrap">
+  <div class="main" role="main">
+    <div class="header">
+      <h1>Scroll Test</h1>
+      <p>Please scroll down to the bottom.</p>
+    </div>
+    <div class="box-container">
+      <div class="box">
+        <div class="text">Nanalike</div>
+      </div>
+      <div class="box">
+        <div class="text">Nanalike</div>
+      </div>
+      <div class="box">
+        <div class="text">Nanalike</div>
+      </div>
+      <div class="box">
+        <div class="text">Nanalike</div>
+      </div>
+      <div class="box">
+        <div class="text">Nanalike</div>
+      </div>
+    </div>
+  </div>
+  <footer class="footer">
+    <a href="nykim.work" target="_blank">Hi, I am Nana!</a>
+  </footer>
+</div>
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+  }
+
+  .header {
+    margin: 50px 0 0px;
+    padding: 0 40px 50px;
+  }
+
+  .footer {
+    padding: 20px;
+    background-color: #333;
+    text-align: center;
+  }
+
+  .footer a {
+    color: #fff;
+  }
+
+  .box {
+    position: relative;
+    width: 100%;
+    height: 500px;
+  }
+
+  .box:first-child {
+    background-color: #eb9f9f;
+  }
+
+  .box:nth-child(2) {
+    background-color: #f1bbba;
+  }
+
+  .box:nth-child(3) {
+    background-color: #f8ecc9;
+  }
+
+  .box:nth-child(4) {
+    background-color: #a79c8e;
+  }
+
+  .box:nth-child(5) {
+    background-color: #c8c8a9;
+  }
+
+  .text {
+    opacity: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 22px;
+    font-family: monospace;
+    letter-spacing: 0.45px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -100px;
+    margin-left: -100px;
+    width: 200px;
+    height: 200px;
+    transform: translateY(50px);
+    background-color: #fff;
+    box-shadow: 0px 4px 40px -5px rgba(10, 10, 10, 0.19);
+    transition: all 2s;
+  }
+
+  .active {
+    opacity: 1;
+    transform: translateY(0px);
+  }
+</style>
+
+<script>
+  var items = document.querySelectorAll(".text");
+  var itemPosY = [];
+
+  function getPosY(e) {
+    var y = e.getBoundingClientRect().top;
+    return y;
+  }
+
+  function getScrollY() {
+    var y = window.pageYOffset;
+    return y;
+  }
+
+  function getitemPosY() {
+    items.forEach(function (el) {
+      var y = getPosY(el) + getScrollY();
+      itemPosY.push(y);
+    });
+  }
+
+
+  function loadHandler() {
+    getitemPosY();
+    console.log(itemPosY);
+  }
+
+  function scrollHandler() {
+    var scrollY = getScrollY();
+    console.log(scrollY);
+
+    for (let i = 0; i < itemPosY.length; i++) {
+      if (scrollY >= itemPosY[i]) {
+        items[i].classList.add("active");
+      }
+    }
+  }
+
+  window.addEventListener("load", loadHandler);
+  window.addEventListener("scroll", scrollHandler);
+
+
+  // DOESNT WORK
+  // window.addEventListener("load", function () {
+  //   console.log("!")
+  //   window.scrollTo(0, 580);
+  // })
+</script>
