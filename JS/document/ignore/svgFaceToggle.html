@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>SVG FACE TOGGLE</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.3/TweenMax.min.js"></script>
+</head>
+
+<body>
+  <section>
+    <h1>From <a href="https://codepen.io/dsenneff/pen/xoQZOJ?editors=1010" target="_blank">Codepen</a></h1>
+    <button id="button" class="face svg-holder" type="button" aria-pressed="false" aria-label="Like">
+      I like this
+      <div>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+          <defs>
+            <clipPath id="mouth-clip">
+              <path id="mouth-clip-path"
+                d="M128,166.8 L80,166.8 C77.2,166.8,75,169.1,75,171.8 C75,174.5,77.2,176.8,80,176.8 C82.7,176.8,87,176.8,128,176.8 C168,176.8,173.2,176.8,176,176.8 C178.7,176.8,181,174.5,181,171.8 C181,169,178.7,166.8,176,166.8 Z" />
+            </clipPath>
+          </defs>
+          <circle id="pop" cx="128" cy="128" r="122" fill="#f2c029" />
+          <circle cx="128" cy="128" r="122" fill="#BBBDBF" stroke="#231F20" stroke-width="8" />
+          <circle opacity="0" id="face" cx="128" cy="128" r="122" fill="#f2c029" stroke="#6b2e0d" stroke-width="8" />
+          <circle id="cheek-r" opacity="0" fill="#E8393C" cx="205.9" cy="151.1" r="25" />
+          <circle id="cheek-l" opacity="0" fill="#E8393C" cx="48.9" cy="151.1" r="25" />
+          <ellipse id="eye-r" cx="168.4" cy="104" fill="#231F20" rx="12.9" ry="18.8" />
+          <ellipse id="eye-l" cx="87.6" cy="104" fill="#231F20" rx="12.9" ry="18.8" />
+          <path id="heart-l" opacity="0" fill="#BD1A1A"
+            d="M71.5 81.6c-16.6-21.1-41.9-7.5-38.1 14.3 3.2 17.9 23.7 31.9 47.6 39.6 19.9-15.4 34.3-35.6 31.2-53.5-3.9-21.8-32.3-25.9-40.7-.4z" />
+          <path id="heart-r" opacity="0" fill="#BD1A1A"
+            d="M185.1 81.6c-8.4-25.5-36.8-21.4-40.7.4-3.2 17.9 11.3 38.1 31.2 53.5 23.9-7.6 44.4-21.7 47.6-39.6 3.9-21.8-21.4-35.4-38.1-14.3z" />
+          <path id="mouth" fill="#231F20"
+            d="M128,166.8 L80,166.8 C77.2,166.8,75,169.1,75,171.8 C75,174.5,77.2,176.8,80,176.8 C82.7,176.8,87,176.8,128,176.8 C168,176.8,173.2,176.8,176,176.8 C178.7,176.8,181,174.5,181,171.8 C181,169,178.7,166.8,176,166.8 Z" />
+          <g clip-path="url(#mouth-clip)">
+            <ellipse id="tongue" fill="#AD1212" cx="128" cy="209.3" rx="40" ry="27.5" />
+          </g>
+        </svg>
+      </div>
+    </button>
+  </section>
+  <!-- <script src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/16327/DrawSVGPlugin.min.js"></script>
+  <script src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/16327/MorphSVGPlugin.min.js"></script> -->
+  <script src="svgFaceToggle.js"></script>
+</body>
+
+</html>

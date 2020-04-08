@@ -1,0 +1,43 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+// 구글 폰트 로드
+@import url("https://fonts.googleapis.com/css?family=Shrikhand&display=swap");
+
+// 믹스인
+@mixin numberString($count) {
+  // $string: "0 1 2 3 4 5 6 7 8 9 ";
+  $string: "문자! ";
+
+  @for $i from 0 to $count {
+    $string: $string + $string;
+  }
+
+  content: "#{$string}";
+}
+
+#test:before {
+  display: block;
+  @include numberString(4); //1=2번, 2=4번, 3=8번, 4=16번
+}
+
+//전역 변수
+:root {
+  --color1: #e71d36;
+  --color2: #ff9f1c;
+  --dur: 6s;
+  --ease: cubic-bezier(0.645, 0.045, 0.355, 1);
+  --size: 75px;
+
+  @media (min-width: 700px) {
+    --size: 150px;
+  }
+}
+
+//바디 스타일링
+body {
+  display: grid;
+}
