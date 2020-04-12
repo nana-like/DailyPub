@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .fixed {
+      /* position: fixed; */
+    }
+
+    .fixed.disabled {
+      opacity: 0.4;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    input {
+      width: 40px;
+      height: 40px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="fixed disabled">
+    <form id="form">
+      <input type="number" />
+      <input type="number" />
+      <input type="number" />
+      <input type="number" />
+    </form>
+    <button id="nextRound">입력 완료</button>
+  </div>
+  <script src="./bulls.js"></script>
+</body>
+
+</html>
