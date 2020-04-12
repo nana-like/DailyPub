@@ -1,7 +1,12 @@
 let chance = 0;
-let level = "normal";
-let round;
+let level = "hard";
+let round = 1;
 const numberList = [];
+let result = {
+  strike: 0,
+  ball: 0,
+  out: 0
+}
 
 const playground = document.querySelector(".fixed");
 
@@ -58,62 +63,83 @@ const makeNumberList = (length) => {
     numberList.push(newNum);
   }
 
-  newLog(`랜덤으로 [${numberList}] 를 만들었습니다.`);
+  // newLog(`랜덤으로 [${numberList}] 를 만들었습니다.`);
+  console.log(`랜덤으로 [${numberList}] 를 만들었습니다.`);
 }
 
 
 // 새 라운드 시작
-const newRound = (round) => {
-  let currentRound = round || 1;
+const newRound = () => {
+  let currentRound = round;
   newLog(`새 라운드입니다. 현재 ${currentRound}라운드 입니다.`)
   if (currentRound > chance) {
     newLog(`${chance}라운드를 초과했습니다.`)
     gameOver();
     return false;
   }
-  playingRound();
 }
 
 
+// 숫자비교
 const compareNumbers = (num) => {
   const playerNumberList = num.map(Number);
-  let result = {
-    strike: 0,
-    ball: 0,
-    out: 0
-  }
 
-  /* 
-  ! 수정 예정
+  /*
   
 
-  for (let i = 0; i < 4; i++) {
-    if (playerNumberList[i] === numberList[i]) {
-      console.dir(`playerNumberList[i]: ${playerNumberList[i]}`);
-      console.dir(`numberList[i]: ${numberList[i]}`);
-      console.log("스트라이크!!!!");
-      result.strike++;
-    }
+    - playerNumberList 1번과 numberList 1번을 비교한다.
+      - if 값이 같다 => 스트라이크
+      - if 값이 다르다
+        - playerNumberList 1번과 numberList 2번을 비교한다.
+            - if 값이 같다 => 볼
+            - if 값이 다르다
+                - playerNumberList 1번과 numberList 3번을 비교한다.
+                  - if 값이 같다 => 볼
+                  - if 값이 다르다
+                    - playerNumberList 1번과 numberList 4번을 비교한다.
+                      - if 값이 같다 => 볼
+                      - if 값이 다르다 => 아웃
+    - playerNumberList 2번과 numberList 1번을 비교한다.
 
-    for (let k = 0; k < 4; k++) {
-      console.dir(`playerNumberList[i]: ${playerNumberList[i]}`);
-      console.dir(`numberList[k]: ${numberList[k]}`);
-      if (playerNumberList[i] === numberList[k]) {
-        console.log("볼!!!!");
-        result.ball++;
-      }
-    }
-  }
   */
 
-  if (result.strike === 0 && result.ball === 0) {
-    console.log("아웃!!!!");
-    result.out++;
+  for (let i = 0; i < rule[level].length; i++) {
+
+    console.log(`이것은 i다. ${i}번째 반복 중`)
+
+    for (let k = 0; k < rule[level].length; k++) {
+      console.log(`이것은 k다. ${k}번째 반복 중`);
+
+
+      console.dir(`playerNumberList[i]: ${playerNumberList[i]}`);
+      console.dir(`numberList[k]: ${numberList[k]}`);
+
+
+      if (playerNumberList[i] === numberList[k]) {
+        if (playerNumberList[i] === numberList[i]) {
+          console.log("스트라이크");
+          result.strike++;
+          break;
+        } else {
+          console.log("볼");
+          result.ball++;
+          break;
+        }
+      }
+
+    }
+
+  }
+
+  if (result.strike <= 0 && result.ball <= 0) {
+    console.log("아웃!!!");
+    return false;
   }
 
   return result;
 }
 
+// 입력 결과 보여줌
 const showResult = () => {
   const form = document.getElementById("form");
   let playerNumbers = [];
@@ -123,31 +149,47 @@ const showResult = () => {
     playerNumbers.push(encodeURIComponent(e.value));
   }
 
-  compareNumbers(playerNumbers);
+  newLog(`${playerNumbers}의 결과...`);
+  if (compareNumbers(playerNumbers)) {
+    if (result.strike >= rule[level].length) {
+      victory();
+      return false;
+    }
+    newLog(`${result.strike} 스트라이크, ${result.ball} 볼`);
+  } else {
+    newLog(`아웃!`)
+  }
+
+  result.strike = 0;
+  result.ball = 0;
+  result.out = 0;
+
+  round++;
+  newRound();
+
 }
 
-
-// 플레이어 차례
-const playingRound = () => {
-  playground.classList.remove("disabled");
-
+// 승리
+const victory = () => {
+  playground.classList.add("disabled");
+  newLog(`승리했습니다.`)
 }
 
-
+// 게임 오버
 const gameOver = () => {
+  playground.classList.add("disabled");
   newLog(`게임 오버입니다.`)
 }
 
 // 새 게임 시작
 const newGame = () => {
   newLog(`새 게임을 시작합니다.`)
+  playground.classList.remove("disabled");
   setLevel();
   makeNumberList();
   newRound();
 }
 
 
-document.getElementById("nextRound").addEventListener("click", function () {
-  showResult();
-})
+document.getElementById("nextRound").addEventListener("click", showResult);
 window.addEventListener("load", newGame);

@@ -31,7 +31,7 @@
 
 ## To-do
 
-- [ ] Set up rules
+- [x] Set up rules
 - [ ] Add functions
 - [ ] Style UI
 - [ ] Fix bugs
