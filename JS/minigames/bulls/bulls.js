@@ -1,5 +1,5 @@
 let chance = 0;
-let level = "hard";
+let level = "normal";
 let round = 1;
 const numberList = [];
 let result = {
@@ -72,6 +72,7 @@ const makeNumberList = (length) => {
 const newRound = () => {
   let currentRound = round;
   newLog(`새 라운드입니다. 현재 ${currentRound}라운드 입니다.`)
+  newLog(`남은 기회는 ${chance}회입니다.`)
   if (currentRound > chance) {
     newLog(`${chance}라운드를 초과했습니다.`)
     gameOver();
@@ -139,11 +140,35 @@ const compareNumbers = (num) => {
   return result;
 }
 
+// 폼 입력 처리
+const validateForm = (val) => {
+  // let input = document.querySelector('input');
+  // const handleInput = e => {
+  //   newLog(`${e.target.value} typed.`);
+  // }
+  // // input.oninput = handleInput;
+
+  // input.addEventListener("oninput", handleInput);
+
+  let value = 0;
+  const pattern = new RegExp('^[0-9]$');
+
+  console.log(pattern.test(value))
+
+  if (pattern.test(value)) {
+
+  }
+
+}
+
+validateForm();
+
+
+
 // 입력 결과 보여줌
 const showResult = () => {
   const form = document.getElementById("form");
   let playerNumbers = [];
-
   for (let i = 0; i < form.elements.length; i++) {
     let e = form.elements[i];
     playerNumbers.push(encodeURIComponent(e.value));
@@ -165,14 +190,31 @@ const showResult = () => {
   result.out = 0;
 
   round++;
+  chance--;
   newRound();
 
+}
+
+// 점수 계산
+const getScore = () => {
+  let score = 0;
+  if (chance >= rule[level].chance) {
+    chance = 15;
+  }
+  score = chance * rule[level].score;
+  return score;
+}
+
+// 점수 보여주기
+const showScore = () => {
+  newLog(`${getScore()}점을 얻었습니다. 축하합니다!`);
 }
 
 // 승리
 const victory = () => {
   playground.classList.add("disabled");
   newLog(`승리했습니다.`)
+  showScore();
 }
 
 // 게임 오버
