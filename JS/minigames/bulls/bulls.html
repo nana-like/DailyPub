@@ -10,7 +10,7 @@
       /* position: fixed; */
     }
 
-    .fixed.disabled {
+    .disabled {
       opacity: 0.4;
       cursor: default;
       pointer-events: none;
@@ -19,17 +19,23 @@
     input {
       width: 40px;
       height: 40px;
+      user-select: none;
     }
   </style>
 </head>
 
 <body>
+  <div class="set-level disabled">
+    <button class="set-level-btn" data-level="easy">Easy</button>
+    <button class="set-level-btn" data-level="normal">Noraml</button>
+    <button class="set-level-btn" data-level="hard">Hard</button>
+  </div>
   <div class="fixed disabled">
     <form id="form">
-      <input type="text" pattern="[0-9]+" />
-      <input type="number" />
-      <input type="number" />
-      <input type="number" />
+      <input type="text" pattern="^[0-9]$" oninput="validateForm(this)" />
+      <input type="text" pattern="[0-9]+" oninput="validateForm(this)" />
+      <input type="text" pattern="[0-9]+" oninput="validateForm(this)" />
+      <input type="text" pattern="[0-9]+" oninput="validateForm(this)" />
     </form>
     <button id="nextRound">입력 완료</button>
   </div>

@@ -9,6 +9,9 @@ let result = {
 }
 
 const playground = document.querySelector(".fixed");
+const ui_level = document.querySelector(".set-level");
+const ui_level_btns = ui_level.querySelectorAll(".set-level-btn");
+
 
 const rule = {
   "easy": {
@@ -44,12 +47,20 @@ const getRandom = (min, max) => {
 }
 
 // 난이도 설정
-const setLevel = () => {
+const showLevel = () => {
   newLog("난이도를 결정합니다.");
-  // level = prompt("난이도를 입력하세요.");
+  ui_level.classList.remove("disabled");
+}
+
+const setLevel = (e) => {
+  level = e.target.dataset.level;
   newLog(`${level} 레벨입니다.`);
   chance = rule[level].chance;
   newLog(`라운드 횟수는 ${chance}입니다.`)
+  ui_level.classList.add("disabled");
+  playground.classList.remove("disabled");
+  makeNumberList();
+  newRound();
 }
 
 // 랜덤 배열 생성
@@ -85,24 +96,6 @@ const newRound = () => {
 const compareNumbers = (num) => {
   const playerNumberList = num.map(Number);
 
-  /*
-  
-
-    - playerNumberList 1번과 numberList 1번을 비교한다.
-      - if 값이 같다 => 스트라이크
-      - if 값이 다르다
-        - playerNumberList 1번과 numberList 2번을 비교한다.
-            - if 값이 같다 => 볼
-            - if 값이 다르다
-                - playerNumberList 1번과 numberList 3번을 비교한다.
-                  - if 값이 같다 => 볼
-                  - if 값이 다르다
-                    - playerNumberList 1번과 numberList 4번을 비교한다.
-                      - if 값이 같다 => 볼
-                      - if 값이 다르다 => 아웃
-    - playerNumberList 2번과 numberList 1번을 비교한다.
-
-  */
 
   for (let i = 0; i < rule[level].length; i++) {
 
@@ -141,30 +134,45 @@ const compareNumbers = (num) => {
 }
 
 // 폼 입력 처리
-const validateForm = () => {
+const validateForm = (input) => {
   let _val = input.value;
   const pattern = new RegExp('^[0-9]$');
 
   console.log(pattern.test(_val))
   input.value = _val.replace(/[a-z]|[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/, '');
 
-  if (input.value.length > 1) {
+  if (_val.length > 1) {
     console.log("길어요!")
     input.value = _val.replace(/.$/, "");
   }
 
   if (!pattern.test(_val)) {
-
+    input.value = _val.replace(/.$/, "");
   }
 
-  console.log(_val);
+  // const nodes = Array.prototype.slice.call(document.getElementById('form').children);
+  // let index = nodes.indexOf(input);
+
+
+  let typedValue = [];
+  const form = document.getElementById("form");
+  for (let i = 0; i < form.elements.length; i++) {
+    let e = form.elements[i];
+    if (typedValue.includes(e.value)) {
+      if (typedValue[i] === e.value) {
+        console.log("?")
+      }
+      typedValue.push("");
+      e.value = "";
+      // return false;
+    } else {
+      typedValue.push(encodeURIComponent(e.value));
+
+    }
+    console.log(typedValue)
+  }
 
 }
-
-let input = document.querySelector('input');
-input.oninput = validateForm;
-
-
 
 // 입력 결과 보여줌
 const showResult = () => {
@@ -192,6 +200,7 @@ const showResult = () => {
 
   round++;
   chance--;
+  typedValue = [];
   newRound();
 
 }
@@ -227,12 +236,11 @@ const gameOver = () => {
 // 새 게임 시작
 const newGame = () => {
   newLog(`새 게임을 시작합니다.`)
-  playground.classList.remove("disabled");
-  setLevel();
-  makeNumberList();
-  newRound();
+  showLevel();
 }
 
-
+ui_level_btns.forEach((btn) => {
+  btn.addEventListener("click", setLevel);
+})
 document.getElementById("nextRound").addEventListener("click", showResult);
 window.addEventListener("load", newGame);
