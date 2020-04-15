@@ -90,8 +90,8 @@ const newRound = () => {
   let currentRound = round;
   newLog(`새 라운드입니다. 현재 ${currentRound}라운드 입니다.`)
   newLog(`남은 기회는 ${chance}회입니다.`)
-  if (currentRound > chance) {
-    newLog(`${chance}라운드를 초과했습니다.`)
+  if (currentRound > rule[level].chance) {
+    newLog(`${rule[level].chance}라운드를 초과했습니다.`)
     gameOver();
     return false;
   }
@@ -161,20 +161,30 @@ const validateForm = (input) => {
 
 
   let typedValue = [];
-  for (let i = 0; i < form.elements.length; i++) {
+  for (let i = 0; i < rule[level].length; i++) {
     let e = form.elements[i];
     if (typedValue.includes(e.value)) {
-      if (typedValue[i] === e.value) {
-        console.log("?")
-      }
+      // if (typedValue[i] === e.value) {
+      //   console.log("?")
+      // }
       typedValue.push("");
       e.value = "";
       // return false;
     } else {
       typedValue.push(encodeURIComponent(e.value));
-
     }
+    // if (typedValue.includes("")) {
+    //   document.getElementById("nextRound").classList.add("disabled")
+    // } else {
+    //   document.getElementById("nextRound").classList.remove("disabled")
+    // }
     console.log(typedValue)
+  }
+  console.log()
+  if (!typedValue.includes("")) {
+    document.getElementById("nextRound").classList.remove("disabled");
+  } else {
+    document.getElementById("nextRound").classList.add("disabled")
   }
 
 }
@@ -253,6 +263,11 @@ const newGame = () => {
     form.elements[i].value = "";
   }
   round = 1;
+
+  result.strike = 0;
+  result.ball = 0;
+  result.out = 0;
+  document.getElementById("nextRound").classList.add("disabled")
   newLog(`새 게임을 시작합니다.`)
   showLevel();
 }
