@@ -12,6 +12,7 @@ const form = document.getElementById("form");
 const playground = document.querySelector(".fixed");
 const ui_level = document.querySelector(".set-level");
 const ui_level_btns = ui_level.querySelectorAll(".set-level-btn");
+const ui_restart_btn = document.querySelector(".restart");
 
 
 const rule = {
@@ -65,6 +66,7 @@ const setLevel = (e) => {
   newLog(`라운드 횟수는 ${chance}입니다.`)
   ui_level.classList.add("disabled");
   playground.classList.remove("disabled");
+  ui_restart_btn.classList.remove("disabled")
   makeNumberList();
   newRound();
 }
@@ -204,6 +206,9 @@ const showResult = () => {
       victory();
       return false;
     }
+    if (result.ball >= rule[level].length && round === 1) {
+      newLog(`앗, 아쉽네요.`);
+    }
     newLog(`${result.strike} 스트라이크, ${result.ball} 볼`);
   } else {
     newLog(`아웃!`)
@@ -225,6 +230,7 @@ const getScore = () => {
   let score = 0;
   if (chance >= rule[level].chance) {
     chance = 15;
+    document.querySelector(".result").classList.add("result-speciall");
   }
   score = chance * rule[level].score;
   return score;
@@ -272,6 +278,16 @@ const newGame = () => {
   showLevel();
 }
 
+const restartGame = () => {
+  if (!confirm("게임이 진행 중입니다. 재시작할까요?")) {
+    return false
+  }
+  alert(`게임을 포기했습니다. 정답은 ${numberList}였어요!`)
+  ui_restart_btn.classList.add("disabled");
+  newGame();
+}
+
+ui_restart_btn.addEventListener("click", restartGame);
 ui_level_btns.forEach((btn) => {
   btn.addEventListener("click", setLevel);
 })
