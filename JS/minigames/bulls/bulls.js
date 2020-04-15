@@ -141,27 +141,28 @@ const compareNumbers = (num) => {
 }
 
 // 폼 입력 처리
-const validateForm = (val) => {
-  // let input = document.querySelector('input');
-  // const handleInput = e => {
-  //   newLog(`${e.target.value} typed.`);
-  // }
-  // // input.oninput = handleInput;
-
-  // input.addEventListener("oninput", handleInput);
-
-  let value = 0;
+const validateForm = () => {
+  let _val = input.value;
   const pattern = new RegExp('^[0-9]$');
 
-  console.log(pattern.test(value))
+  console.log(pattern.test(_val))
+  input.value = _val.replace(/[a-z]|[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/, '');
 
-  if (pattern.test(value)) {
+  if (input.value.length > 1) {
+    console.log("길어요!")
+    input.value = _val.replace(/.$/, "");
+  }
+
+  if (!pattern.test(_val)) {
 
   }
 
+  console.log(_val);
+
 }
 
-validateForm();
+let input = document.querySelector('input');
+input.oninput = validateForm;
 
 
 
