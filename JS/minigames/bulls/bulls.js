@@ -1,12 +1,13 @@
 let chance = 0;
 let level = "normal";
 let round = 1;
-const numberList = [];
+let numberList = [];
 let result = {
   strike: 0,
   ball: 0,
   out: 0
 }
+const form = document.getElementById("form");
 
 const playground = document.querySelector(".fixed");
 const ui_level = document.querySelector(".set-level");
@@ -36,7 +37,7 @@ const rule = {
 const newLog = (msg) => {
   const p = document.createElement("p");
   p.innerHTML = msg;
-  document.body.append(p);
+  document.getElementById("log").append(p);
 }
 
 // 난수 생성
@@ -55,6 +56,11 @@ const showLevel = () => {
 const setLevel = (e) => {
   level = e.target.dataset.level;
   newLog(`${level} 레벨입니다.`);
+  if (level === "easy") {
+    document.body.classList.add("easy");
+  } else {
+    document.body.classList.remove("easy");
+  }
   chance = rule[level].chance;
   newLog(`라운드 횟수는 ${chance}입니다.`)
   ui_level.classList.add("disabled");
@@ -155,7 +161,6 @@ const validateForm = (input) => {
 
 
   let typedValue = [];
-  const form = document.getElementById("form");
   for (let i = 0; i < form.elements.length; i++) {
     let e = form.elements[i];
     if (typedValue.includes(e.value)) {
@@ -225,16 +230,29 @@ const victory = () => {
   playground.classList.add("disabled");
   newLog(`승리했습니다.`)
   showScore();
+  document.querySelector(".result").classList.add("show");
+  document.querySelector(".victory").classList.add("show");
 }
 
 // 게임 오버
 const gameOver = () => {
   playground.classList.add("disabled");
   newLog(`게임 오버입니다.`)
+  document.querySelector(".result").classList.add("show");
+  document.querySelector(".fail").classList.add("show");
 }
 
 // 새 게임 시작
 const newGame = () => {
+  document.getElementById("log").innerHTML = "";
+  document.querySelector(".result").classList.remove("show");
+  document.querySelector(".victory").classList.remove("show");
+  document.querySelector(".fail").classList.remove("show");
+  numberList = [];
+  for (let i = 0; i < form.elements.length; i++) {
+    form.elements[i].value = "";
+  }
+  round = 1;
   newLog(`새 게임을 시작합니다.`)
   showLevel();
 }
@@ -243,4 +261,5 @@ ui_level_btns.forEach((btn) => {
   btn.addEventListener("click", setLevel);
 })
 document.getElementById("nextRound").addEventListener("click", showResult);
+document.querySelector(".new-game-btn").addEventListener("click", newGame);
 window.addEventListener("load", newGame);

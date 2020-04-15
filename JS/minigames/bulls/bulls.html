@@ -6,8 +6,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
   <style>
+    .show {
+      display: block !important;
+    }
+
+    .victory,
+    .fail {
+      display: none;
+    }
+
+    .result {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: #fafafa64;
+      display: none;
+    }
+
     .fixed {
       /* position: fixed; */
+    }
+
+    .easy form input:last-child {
+      display: none;
     }
 
     .disabled {
@@ -39,9 +62,12 @@
     </form>
     <button id="nextRound">입력 완료</button>
   </div>
-  <div id="log">
-
+  <div class="result">
+    <div class="victory"> Hoooray!!!</div>
+    <div class="fail">ㅠㅠ</div>
+    <button class="new-game-btn">새로운 게임</button>
   </div>
+  <div id="log"></div>
   <script src="./bulls.js"></script>
 </body>
 
