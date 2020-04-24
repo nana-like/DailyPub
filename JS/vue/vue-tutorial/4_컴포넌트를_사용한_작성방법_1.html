@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vue test</title>
+    <style>
+      img {
+        display: block;
+        width: 300px;
+      }
+    </style>
+    <script src="vue.js"></script>
+  </head>
+
+  <body>
+    <h1>컴포넌트를 사용한 작성방법</h1>
+    <p>Vue에서 컴포넌트는 미리 정의된 옵션을 가진 Vue 인스턴스입니다.</p>
+
+    <div id="app-7">
+      <strong>먹고 싶은 음식</strong>
+      <ol>
+        <list
+          v-for="item in foodsList"
+          v-bind:food="item"
+          v-bind:key="item.id"
+        ></list>
+      </ol>
+    </div>
+    <script>
+      Vue.component("list", {
+        props: ["food"],
+        template:
+          '<li><span class="text">{{food.text}}</span><img v-bind:src="food.img" v-bind:alt="food.text"></li>',
+      });
+      const app7 = new Vue({
+        el: "#app-7",
+        data: {
+          foodsList: [
+            {
+              id: 0,
+              text: "치킨",
+              img:
+                "https://rasamalaysia.com/wp-content/uploads/2016/06/korean-fried-chicken1.jpg",
+            },
+            {
+              id: 1,
+              text: "연어 스테이크",
+              img:
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcSRuZxaCUB2-Mi6YIaIbUu4d5kpdY-QZyrb-73WOx1O-GWw5Z9c&usqp=CAU",
+            },
+            {
+              id: 2,
+              text: "불고기",
+              img:
+                "https://savorysweetlife.com/wp-content/uploads/2018/04/bulgogi/bulgogi-1.jpg",
+            },
+          ],
+        },
+      });
+    </script>
+  </body>
+</html>

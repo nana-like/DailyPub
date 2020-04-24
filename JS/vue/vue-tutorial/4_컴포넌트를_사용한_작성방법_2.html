@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vue test</title>
+    <style>
+      .finish {
+        text-decoration: line-through;
+      }
+    </style>
+    <script src="vue.js"></script>
+  </head>
+
+  <body>
+    <h1>컴포넌트를 사용한 작성방법</h1>
+    <p>Vue에서 컴포넌트는 미리 정의된 옵션을 가진 Vue 인스턴스입니다.</p>
+
+    <div id="app-8">
+      <ul>
+        <my-todo-item
+          v-for="todo in todos"
+          v-bind:todo="todo"
+          v-bind:key="todo.id"
+        ></my-todo-item>
+      </ul>
+      <ul>
+        <my-todo-item
+          v-for="todo in todos2"
+          v-bind:todo="todo"
+          v-bind:key="todo.id"
+        ></my-todo-item>
+      </ul>
+    </div>
+    <script>
+      Vue.component('my-todo-item', {
+        props: ['todo'],
+        template: `
+        <li v-bind:key="todo.id">
+            <input v-bind:id="todo.id" type="checkbox" v-model="todo.done" />
+            <label v-bind:class="{ finish : todo.done }" v-bind:for="todo.id">{{ todo.title }}</label>
+        </li>`,
+      });
+      const app8 = new Vue({
+        el: '#app-8',
+        data: {
+          todos: [
+            {
+              id: 0,
+              title: '아침 먹기',
+              done: false,
+            },
+            {
+              id: 1,
+              title: '점심 먹기',
+              done: true,
+            },
+            {
+              id: 2,
+              title: '간식 먹기',
+              done: true,
+            },
+            {
+              id: 3,
+              title: '저녁 먹기',
+              done: false,
+            },
+            {
+              id: 4,
+              title: '야식 먹기',
+              done: false,
+            },
+          ],
+          todos2: [
+            {
+              id: 5,
+              title: '잠자기',
+              done: false,
+            },
+          ],
+        },
+      });
+    </script>
+  </body>
+</html>
