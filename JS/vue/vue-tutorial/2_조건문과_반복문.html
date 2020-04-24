@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vue test</title>
+  <style>
+    .active {
+      color: crimson;
+    }
+  </style>
+  <script src="vue.js"></script>
+</head>
+
+<body>
+
+  <h2>조건문</h2>
+  <div id="app-if">
+    <p>아래 요소가 보이나요? 콘솔에 vm_if.show = ture를 입력해보세요.</p>
+    <p v-if="show">You can see me now! 😝</p>
+    <p v-if="text"></p>
+  </div>
+
+  <script>
+    const vm_if = new Vue({
+      el: "#app-if",
+      data: {
+        show: false,
+        text: '' // false와 동일하므로 보이지 않음
+      }
+    })
+  </script>
+
+
+  <h2>반복문</h2>
+  <div id="app-for">
+    <p>제가 할 일은...</p>
+    <ul>
+      <li v-for="todo in todos" v-bind:key="todo.id">
+        <!-- v-for를 쓸 때는 v-bind:key를 필수로 써줄 것! -->
+        {{ todo.text }}
+      </li>
+    </ul>
+  </div>
+
+  <script>
+    const vm_for = new Vue({
+      el: "#app-for",
+      data: {
+        todos: [{
+            id: '1',
+            text: "자바스크립트 배우기"
+          },
+          {
+            id: '2',
+            text: "Vue 배우기"
+          },
+          {
+            id: '3',
+            text: "멋진 것 만들기"
+          }
+        ]
+      }
+    })
+  </script>
+
+
+
+
+
+</body>
+
+</html>
