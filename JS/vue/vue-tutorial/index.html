@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vue test</title>
+  <style>
+    .active {
+      color: crimson;
+    }
+  </style>
+  <script src="vue.js"></script>
+</head>
+
+<body>
+
+  <div id="app">
+    {{ message }}
+  </div>
+  <div id="app-2">
+    <p v-bind:title="titleMsg" v-bind:class="{ active : active}">마우스를 올려보세요.</p>
+  </div>
+  <script>
+    new Vue({
+      el: '#app',
+      data: {
+        message: "Hello, Vue!"
+      }
+    })
+
+    const vm = new Vue({
+      el: "#app-2",
+      data: {
+        titleMsg: "이 페이지는" + new Date() + "에 로드 되었습니다.",
+        active: false
+      }
+    })
+  </script>
+
+
+
+</body>
+
+</html>
