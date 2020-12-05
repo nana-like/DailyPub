@@ -1,0 +1,13 @@
+/**
+ * -----------------------------------------------
+ * Project: Template
+ * Author: Nana (nykim@nykim.net)
+ * Last Modified: 2020-12-05 20:59:47
+ * -----------------------------------------------
+ */
+
+h1 {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  color: #765c5c; }
