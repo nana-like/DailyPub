@@ -142,3 +142,14 @@ a {
   .canvas-caption {
     padding: 0;
     font-size: 2rem; } }
+
+.sticky-elem {
+  display: none;
+  position: fixed;
+  left: 0;
+  width: 100%; }
+
+.scroll-section {
+  position: relative;
+  padding-top: 50vh;
+  outline: 3px solid red; }
