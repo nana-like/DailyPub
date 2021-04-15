@@ -43,12 +43,30 @@
     ];
 
     function setLayout() {
+        yOffset = window.pageYOffset;
+
         //각 스크롤 섹션의 높이 세팅
         for (let i=0; i < sceneInfo.length; i++) {
             sceneInfo[i].scrollHeight =  sceneInfo[i].heightNum * window.innerHeight;
             sceneInfo[i].objs.container.style.height = `${sceneInfo[i].scrollHeight}px`;
         }
-        console.log(sceneInfo);
+
+        // 활성화된 섹션 위치 정보를 얻기 위해 모든 섹션 높이를 더함
+        let totalScollHeight = 0;
+        for (let i=0; i < sceneInfo.length; i++) {
+            totalScollHeight += sceneInfo[i].scrollHeight;
+
+            // 단, 현재 스크롤 높이보다 커지면 계산을 멈춤
+            if (totalScollHeight >= yOffset) {
+                // 그리고 i 값을 currentScene으로 설정함
+                currentScene = i;
+                break;
+            }
+        }
+
+        // 활성화된 섹션에게 클래스네임 추가
+        document.body.setAttribute('id', `show-scene-${currentScene}`);
+
     }
 
     function scrollLoop() {
@@ -72,13 +90,16 @@
         }
 
         console.log('currentScene:', currentScene);
+
+        // 활성화된 섹션에게 클래스네임 추가
+        document.body.setAttribute('id', `show-scene-${currentScene}`);
     }
 
-    window.addEventListener('resize', setLayout);
     window.addEventListener('scroll', () => {
         yOffset = window.pageYOffset;
         scrollLoop();
     });
+    window.addEventListener('resize', setLayout);
+    window.addEventListener('load', setLayout);
 
-    setLayout();
 })();
