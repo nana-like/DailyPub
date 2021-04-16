@@ -10,7 +10,11 @@
             heightNum: 5,
             scrollHeight: 0, //스크린 높이에 맞춰 비율로 지정
             objs: {
-                container: document.querySelector('#scroll-section-0')
+                container: document.querySelector('#scroll-section-0'),
+                messages: document.querySelectorAll('#scroll-section-0 .sticky-elem')
+            },
+            values: {
+                msg1_opacity: [0, 1]
             }
         },
         {
@@ -66,15 +70,37 @@
 
         // 활성화된 섹션에게 클래스네임 추가
         document.body.setAttribute('id', `show-scene-${currentScene}`);
+    }
 
+    function calcValues(values, currentYOffset) {
+        // console.log('calcValues()')
+    }
+
+    function playAnimation() {
+        const objs = sceneInfo[currentScene].objs;
+        const values = sceneInfo[currentScene].values;
+        const currentYOffset = yOffset - prevScrollHeight;
+
+        switch (currentScene) {
+            case 0:
+                let msg1_opacity_0 = values.msg1_opacity[0];
+                let msg1_opacity_1 = values.msg1_opacity[1];
+                console.log( calcValues(values, values.msg1_opacity) );
+                break;
+            case 1:
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
+        }
     }
 
     function scrollLoop() {
         // * 참고: https://codepen.io/nykim_/pen/MWjZVNR?editors=0110
 
         prevScrollHeight = 0; //현재 내가 보고 있는 섹션보다 위에 있는 섹션들의 높이값을 합친 것
-
-        for (let i=0; i < currentScene; i++) {
+        for (let i = 0; i < currentScene; i++) {
             prevScrollHeight += sceneInfo[i].scrollHeight;
         }
 
@@ -93,6 +119,9 @@
 
         // 활성화된 섹션에게 클래스네임 추가
         document.body.setAttribute('id', `show-scene-${currentScene}`);
+
+        // 애니메이션 실행
+        playAnimation();
     }
 
     window.addEventListener('scroll', () => {
