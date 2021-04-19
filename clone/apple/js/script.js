@@ -73,7 +73,11 @@
     }
 
     function calcValues(values, currentYOffset) {
-        // console.log('calcValues()')
+        let rv;
+        // 현재 섹션에서 스크롤한 비율
+        let scrollRatio = currentYOffset / sceneInfo[currentScene].scrollHeight;
+        rv = scrollRatio * (values[1] - values[0]) + values[0];
+        return rv;
     }
 
     function playAnimation() {
@@ -83,9 +87,9 @@
 
         switch (currentScene) {
             case 0:
-                let msg1_opacity_0 = values.msg1_opacity[0];
-                let msg1_opacity_1 = values.msg1_opacity[1];
-                console.log( calcValues(values, values.msg1_opacity) );
+                let msg1_opacity_in = calcValues(values.msg1_opacity, currentYOffset);
+                objs.messages[0].style.opacity = msg1_opacity_in;
+                console.log( msg1_opacity_in );
                 break;
             case 1:
                 break;
