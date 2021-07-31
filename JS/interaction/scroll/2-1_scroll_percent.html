@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스크롤 퍼센트 구하기</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            height: 1000px;
+            background: lightskyblue;
+        }
+
+        .percent {
+            position: fixed;
+            top: 0;
+            width: 100vw;
+        }
+
+        .txt {
+            font-size: 4vmin;
+        }
+
+        .bar {
+            width: 100%;
+            height: 30px;
+            transform: translateX(-100%);
+            background-color: lightseagreen;
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="percent">
+        <div class="bar"></div>
+        <p class="txt"><span class="num">0</span>%</p>
+    </div>
+    <script>
+        var num = document.querySelector('.num');
+        var bar = document.querySelector('.bar');
+
+        function getPercent() {
+            var docH = document.body.offsetHeight;
+            var winH = window.innerHeight;
+            var scrollH = docH - winH;
+            var scrollY = window.scrollY;
+            var value = Math.floor((scrollY / scrollH) * 100);
+            drawPercent(value);
+        }
+
+        function drawPercent(percent) {
+            num.innerText = percent;
+            bar.style.transform = `translateX(${-100 + percent}%)`;
+        }
+
+        function rAFScroll(callback) {
+            let ticking = false;
+
+            return function() {
+                if (!ticking) {
+                    ticking = true;
+                    return requestAnimationFrame(function task() {
+                        ticking = false;
+                        return callback();
+                    })
+                }
+            }
+        }
+        window.addEventListener('scroll', rAFScroll(getPercent));
+        </script>
+</body>
+</html>
