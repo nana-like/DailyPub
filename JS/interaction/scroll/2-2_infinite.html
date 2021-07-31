@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>무한 스크롤</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            display: block;
+            width: 100%;
+            text-align: center;
+            font-size: 4vw;
+            height: 300px;
+            line-height: 300px;
+        }
+
+        .main {
+            padding: 5vw;
+            box-sizing: border-box;
+        }
+
+        .list {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            column-gap: 3vw;
+            row-gap: 5vw;
+        }
+
+        .item {
+            position: relative;
+            display: block;
+            width: 100%;
+            height: auto;
+            background-color: #f5f5f5;
+            padding-bottom: 75%;
+        }
+
+        .content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+        }
+
+        img {
+            display: block;
+            width: 100%;
+            /* display: none; */
+        }
+
+        .footer {
+            display: flex;
+            align-items: center;
+            height: 200px;
+            font-size: calc(11px + .5vw);
+            padding: 0 5vw;
+            color: #666;
+            box-sizing: border-box;
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>NANALIKE</h1>
+    <div class="main">
+        <ul class="list">
+            <li class="item">
+                <div class="content">
+                    <img src="//source.unsplash.com/1600x1200/?book" alt="">
+                </div>
+            </li>
+            <li class="item">
+                <div class="content">
+                    <img src="//source.unsplash.com/1600x1200/?water" alt="">
+                </div>
+            </li>
+            <li class="item">
+                <div class="content">
+                    <img src="//source.unsplash.com/1600x1200/?flower" alt="">
+                </div>
+            </li>
+            <li class="item">
+                <div class="content">
+                    <img src="//source.unsplash.com/1600x1200/?heart" alt="">
+                </div>
+            </li>
+            <li class="item">
+                <div class="content">
+                    <img src="//source.unsplash.com/1600x1200/?clock" alt="">
+                </div>
+            </li>
+            <li class="item">
+                <div class="content">
+                    <img src="//source.unsplash.com/1600x1200/?cup" alt="">
+                </div>
+            </li>
+        </ul>
+    </div>
+    <footer class="footer">
+        Dear Universe,<br>
+        I am a magnet for miracles, abundance, love and truth.<br>
+        So be it, so it is.<br><br>
+        - Nana
+    </footer>
+    <script>
+        function scrollEvt() {
+
+            const listEl = document.querySelector('.list');
+            let dataAllLoaded = false;
+            let data = [{
+                    "keyword": "food"
+                },
+                {
+                    "keyword": "coffee"
+                },
+                {
+                    "keyword": "sky"
+                },
+                {
+                    "keyword": "tree"
+                },
+                {
+                    "keyword": "port"
+                },
+                {
+                    "keyword": "europe"
+                },
+                {
+                    "keyword": "green"
+                },
+                {
+                    "keyword": "glass"
+                },
+                {
+                    "keyword": "street"
+                },
+                {
+                    "keyword": "pen"
+                },
+                {
+                    "keyword": "movie"
+                },
+                {
+                    "keyword": "letter"
+                },
+                {
+                    "keyword": "love"
+                }
+            ];
+
+            function getData(data) {
+
+                if (data.length <= 0) {
+                    dataAllLoaded = true;
+                    return false;
+                }
+                let renderLength = 2;
+                let currentData = data.slice(0, renderLength);
+                data.splice(0, renderLength);
+
+                return currentData;
+            }
+
+            function renderData(data) {
+                for (let i = 0; i < data.length; i++) {
+                    var item = document.createElement('li');
+                    item.classList.add('item');
+                    item.innerHTML +=
+                        `<div class="content"><img src="//source.unsplash.com/1600x1200/?${data[i].keyword}" alt=""></div>`;
+                    listEl.appendChild(item);
+                }
+            }
+
+            function loadData() {
+                let scrollY = window.scrollY;
+                let docH = document.body.offsetHeight;
+                let winH = window.innerHeight;
+                let footerH = document.querySelector('.footer').scrollHeight;
+                let footerTop = docH - winH - footerH;
+                // console.log("footerTop ", footerTop);
+
+                if (scrollY >= footerTop) {
+                    // console.log("푸터에 닿았다. 이제...");
+
+                    if (!dataAllLoaded) {
+                        // console.log("현재 데이터를 뿌린다!")
+                        renderData(getData(data));
+                    } else {
+                        // console.log("모든 데이터를 불렀다고 하는군!")
+                        return false;
+                    }
+
+                }
+            }
+
+            window.addEventListener('scroll', loadData);
+        }
+
+        document.addEventListener('DOMContentLoaded', scrollEvt);
+    </script>
+</body>
+
+</html>
