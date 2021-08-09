@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        .main {
+            z-index: 1;
+            position: relative;
+            width: 100%;
+            height: 3000px;
+        }
+
+        .bg {
+            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgb(176, 209, 151);
+            transition: background-color 1s;
+        }
+
+        .bg:before {
+            display: block;
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url(./images/pattern.jpeg);
+            background-repeat: repeat;
+            mix-blend-mode: overlay;
+        }
+
+        .title {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 5vmin;
+            font-size: 10vmin;
+            font-weight: bold;
+            padding: 0 2vw;
+            box-sizing: border-box;
+            color: darkblue;
+            transform: translateY(0);
+        }
+
+        .text {
+            margin-top: 1.8vmin;
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <div class="title">
+            <div class="text">Dear,</div>
+            <div class="text text2">My -</div>
+            <div class="text text3">Universe</div>
+        </div>
+    </div>
+    <div class="bg"></div>
+
+    <script>
+        const backgroundEl = document.querySelector('.bg');
+        const textEl = document.querySelectorAll('.text');
+
+        let scrollY;
+        let docH;
+        let winH;
+        let scrollH;
+        let scrollPercent;
+
+        function getProperty() {
+            scrollY = window.scrollY;
+            docH = document.body.offsetHeight;
+            winH = window.innerHeight;
+
+            scrollH = docH - winH;
+            scrollPercent = Math.round((scrollY / scrollH) * 100);
+        }
+
+        function setBgColor(idx){
+            if (!idx) {
+                idx = 0;
+            }
+            let colorList = [
+                {
+                    "name": "green",
+                    "color": ['176, 209, 151']
+                },
+                {
+                    "name": "blue",
+                    "color": ['182, 199, 246']
+                },
+                {
+                    "name": "pink",
+                    "color": ['246, 182, 209']
+                }
+            ];
+            backgroundEl.style.backgroundColor = `rgba(${colorList[idx].color}`
+        }
+
+        function parallaxText(distance) {
+            const parallax = [0.2, 0.3, 0.4];
+            textEl.forEach((item, idx) => {
+                const pos = scrollPercent * parallax[idx];
+                item.style.transform = `translateY(-${pos}px)`;
+            })
+        }
+
+        function motion() {
+            getProperty();
+            parallaxText(scrollPercent);
+
+            if (scrollPercent <= 33) {
+                setBgColor();
+            } else if (scrollPercent >= 34 && scrollPercent <= 69) {
+                setBgColor(1);
+            } else {
+                setBgColor(2);
+            }
+        }
+        document.addEventListener('DOMContentLoaded', motion);
+        window.addEventListener('scroll', motion);
+    </script>
+</body>
+</html>

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Quattrocento+Sans:400,700&display=swap" rel="stylesheet">
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.12.4.min.js"></script>
+    <title>Document</title>
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            font-family:'Quattrocento Sans', sans-serif;
+        }
+
+        section {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            height: 100vh;
+            background-size: cover;
+            transition: translate 1s;
+        }
+
+        .visual {
+            position: relative;
+        }
+
+        section:after {
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, .2);
+            content: '';
+        }
+
+        .visual .player {
+            z-index: -1;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .visual .player video {
+            object-fit: cover;
+            min-width: 100%;
+            min-height: 100%;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        h1, h2{
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            color: #fff;
+            font-size: 15vmin;
+        }
+
+        .green {
+            background-image: url('./images/blur.jpeg');
+        }
+
+        .universe {
+            background-image: url('./images/universe.jpeg');
+        }
+
+        .moving {
+            z-index: 10;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        .moving + section {
+            z-index: 11;
+            outline: 10px solid red;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <section class="section visual">
+            <h1>Sky</h1>
+            <div class="player">
+                <video width="100%" autoplay loop muted>
+                    <source src="./images/clouds.mp4" type="video/mp4">
+                </video>
+            </div>
+        </section>
+        <section class="section green">
+            <h2>Green</h2>
+        </section>
+        <section class="section universe full-move">
+            <h2>Universe</h2>
+        </section>
+        <section class="section book">
+            <h2>Books</h2>
+        </section>
+    </div>
+
+    <script>
+        $(function(){
+            function moveSection() {
+                
+            }
+        });
+    </script>
+
+    <!--
+    <script>
+$(function(){
+        var scrollTo=function(l,t){var c=document.scrollingElement||document.documentElement,m=c.scrollTop,a=l-m,s=performance.now(),i=function(o){var n,e,r=o-s;c.scrollTop=parseInt((n=r,e=m,o=a,(n/=t/2)<1?o/2*n*n+e:-o/2*(--n*(n-2)-1)+e)),r<t?requestAnimationFrame(i):c.scrollTop=l};requestAnimationFrame(i)};
+
+
+
+
+        const wrap = document.querySelector('.wrap');
+        const fullSectionList = document.querySelectorAll('.full-move');
+
+        let scrollY;
+        let docH
+        let winH;
+        let scrollH;
+        let scrollPercent;
+        let lastScrollY = scrollY;
+        let movePosition = [];
+
+        function moveSection() {
+            fullSectionList.forEach((section) => {
+                movePosition.push(section.offsetTop - section.offsetHeight);
+                movePosition.push(section.offsetTop);
+            });
+
+            return movePosition;
+        }
+
+        function getProperty() {
+            scrollY = window.scrollY;
+            docH = document.body.offsetHeight;
+            winH = window.innerHeight;
+            scrollH = docH - winH;
+            scrollPercent = Math.round((scrollY / scrollH) * 100);
+
+            console.log("scrollY ", scrollY);
+            // console.log("scrollPercent ", scrollPercent);
+        }
+
+        function motion() {
+            getProperty();
+            moving = false;
+
+
+            if (scrollY > lastScrollY) {
+                // console.log("아래로 스크롤");
+
+                if (scrollY > movePosition[0] && scrollY < movePosition[1]) {
+                    if (!moving) {
+                        moving = true;
+                        console.log("!");
+                        $('html').stop(true).animate({
+                            scrollTop: movePosition[1]+1
+                        },500,function(){
+                            moving = false;
+                        });
+
+
+                        // fullSectionList[0].previousElementSibling.classList.add('moving');
+                        // fullSectionList[0].classList.add('moving');
+                        // scrollTo(movePosition[0]);
+                        // scrollTo(movePosition[1]);
+                        // wrap.style.transform = `translateY(-100vh)`;
+                        // window.scrollTo(0, movePosition[1]);
+                    }
+                }
+            }
+
+            lastScrollY = scrollY <= 0 ? 0 : scrollY;
+        }
+
+        moveSection();
+        window.addEventListener('load', motion);
+        window.addEventListener('scroll', motion);
+
+});
+
+    </script>
+    -->
+</body>
+</html>

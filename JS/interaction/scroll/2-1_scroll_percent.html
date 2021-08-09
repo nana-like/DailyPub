@@ -50,7 +50,7 @@
             var winH = window.innerHeight;
             var scrollH = docH - winH;
             var scrollY = window.scrollY;
-            var value = Math.floor((scrollY / scrollH) * 100);
+            var value = Math.round((scrollY / scrollH) * 100);
             drawPercent(value);
         }
 
