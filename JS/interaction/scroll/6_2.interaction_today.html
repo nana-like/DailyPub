@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Quattrocento+Sans:400,700&display=swap" rel="stylesheet">
+    <script type="text/javascript" src="//code.jquery.com/jquery-1.12.4.min.js"></script>
+    <title>INTERACTION</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            font-family:'Quattrocento Sans', sans-serif;
+        }
+
+        html,body {
+            height: 100%;
+        }
+
+        .today {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            background-color: rgb(33, 31, 32);
+        }
+
+        .today .title {
+            opacity: 0.1;
+            width: 100vw;
+            text-align: center;
+            font-size: 30vw;
+            letter-spacing: -.05em;
+            color: transparent;
+            -webkit-text-stroke: .01em #fff;
+            user-select: none;
+        }
+
+        .today .date {
+            overflow: hidden;
+            position: fixed;
+            width: 100vw;
+            height: 13vw;
+            /* outline: 3px solid yellow; */
+            color: #fff;
+            font-size: 13vw;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            animation: fadeIn 4s;
+            animation-delay: .85s;
+            animation-fill-mode: both;
+        }
+
+        .today .date_box {
+            position: relative;
+            display: inline-block;
+            width: 8vw;
+            text-align: center;
+            animation-name: rolling;
+            animation-duration: 2.2s;
+            animation-play-state: running !important;
+            animation-fill-mode: forwards;
+        }
+
+        .today .date_box .num {
+            display: block;
+            text-align: center;
+            width: 100%;
+            height: 13vw;
+        }
+
+        .date_y1 {
+        }
+
+        .date_y2 {
+            animation-delay: .15s;
+        }
+
+        .date_y3 {
+            animation-delay: .3s;
+        }
+
+        .date_y4 {
+            animation-delay: .45s;
+        }
+
+        .date_m1 {
+            animation-delay: .6s;
+        }
+
+        .date_m2 {
+            animation-delay: .75s;
+        }
+
+        .date_d1 {
+            animation-delay: .9s;
+        }
+
+        .date_d2 {
+            animation-delay: 1.05s;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes rolling {
+            100% {
+                transform: translateY(-208vw); /* 13 * (17-1) = 208 */
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <section class="today">
+        <h2 class="title">TODAY</h2>
+        <div class="date">
+            <div class="date_box date_y1"></div>
+            <div class="date_box date_y2"></div>
+            <div class="date_box date_y3"></div>
+            <div class="date_box date_y4"></div>
+            <div class="date_point">.</div>
+            <div class="date_box date_m1"></div>
+            <div class="date_box date_m2"></div>
+            <div class="date_point">.</div>
+            <div class="date_box date_d1"></div>
+            <div class="date_box date_d2"></div>
+        </div>
+    </section>
+    <script>
+
+        // jQuery //Need refactoring
+
+        $(function(){
+
+            function setLayout() {
+                var winH = window.innerHeight;
+                console.log(winH);
+
+                $('body, .today').css('height', winH);
+            }
+
+            setLayout();
+
+            var today = {
+                y: [],
+                m: [],
+                d: []
+            }
+
+            function getToday() {
+                var date = new Date();
+                var y = date.getFullYear();
+                var m = date.getMonth() + 1;
+                var d = date.getDate();
+
+                function splitTime(time, arr) {
+                    time = (time < 10) ? '0' + time : time;
+                    time = time.toString().split('');
+                    arr = time;
+                    arr = arr.map(function(x) {
+                        return parseInt(x, 10);
+                    });
+                    return arr;
+                }
+
+                today.y = splitTime(y);
+                today.m = splitTime(m);
+                today.d = splitTime(d);
+
+                console.log(today);
+                return today;
+            }
+
+            getToday();
+
+            function setRolling() {
+                var rollingNum = 17;
+                var yearNums = {
+                    1: [],
+                    2: [],
+                    3: [],
+                    4: []
+                };
+                var monthNums = {
+                    1: [],
+                    2: []
+                };
+                var dayNums = {
+                    1: [],
+                    2: []
+                };
+
+                for (var i=0; i<Object.keys(yearNums).length; i++) {
+
+                    var arr = [];
+
+                    for (var j = today.y[i]; j < (rollingNum+today.y[i]); j++) {
+                        var num = j.toString();
+                        if (j >= 10) {
+                            num = num.split('')[1];
+                        }
+                        arr.push(num);
+                    }
+                    arr.reverse();
+
+                    yearNums[Object.keys(yearNums)[i]] = arr;
+                }
+
+
+                for (var i=0; i<Object.keys(monthNums).length; i++) {
+                    var arr = [];
+
+                    for (var j = today.m[i]; j < (rollingNum+today.m[i]); j++) {
+                        var num = j.toString();
+                        if (j >= 10) {
+                            num = num.split('')[1];
+                        }
+                        arr.push(num);
+                    }
+                    arr.reverse();
+
+                    monthNums[Object.keys(monthNums)[i]] = arr;
+                }
+
+
+                for (var i=0; i<Object.keys(dayNums).length; i++) {
+                    var arr = [];
+
+                    for (var j = today.d[i]; j < (rollingNum+today.d[i]); j++) {
+                        var num = j.toString();
+                        if (j >= 10) {
+                            num = num.split('')[1];
+                        }
+                        arr.push(num);
+                    }
+                    arr.reverse();
+
+                    dayNums[Object.keys(dayNums)[i]] = arr;
+                }
+
+                console.table(yearNums);
+                console.table(monthNums);
+                console.table(dayNums);
+
+                yearNums['1'].forEach(function(el) {
+                    var newNum = document.createElement('span');
+                    newNum.classList.add('num');
+                    newNum.innerHTML = el;
+                    $('.date_y1').append(newNum);
+                });
+                yearNums['2'].forEach(function(el) {
+                    var newNum = document.createElement('span');
+                    newNum.classList.add('num');
+                    newNum.innerHTML = el;
+                    $('.date_y2').append(newNum);
+                });
+                yearNums['3'].forEach(function(el) {
+                    var newNum = document.createElement('span');
+                    newNum.classList.add('num');
+                    newNum.innerHTML = el;
+                    $('.date_y3').append(newNum);
+                });
+                yearNums['4'].forEach(function(el) {
+                    var newNum = document.createElement('span');
+                    newNum.classList.add('num');
+                    newNum.innerHTML = el;
+                    $('.date_y4').append(newNum);
+                });
+                monthNums['1'].forEach(function(el) {
+                    var newNum = document.createElement('span');
+                    newNum.classList.add('num');
+                    newNum.innerHTML = el;
+                    $('.date_m1').append(newNum);
+                });
+                monthNums['2'].forEach(function(el) {
+                    var newNum = document.createElement('span');
+                    newNum.classList.add('num');
+                    newNum.innerHTML = el;
+                    $('.date_m2').append(newNum);
+                });
+                dayNums['1'].forEach(function(el) {
+                    var newNum = document.createElement('span');
+                    newNum.classList.add('num');
+                    newNum.innerHTML = el;
+                    $('.date_d1').append(newNum);
+                });
+                dayNums['2'].forEach(function(el) {
+                    var newNum = document.createElement('span');
+                    newNum.classList.add('num');
+                    newNum.innerHTML = el;
+                    $('.date_d2').append(newNum);
+                });
+            }
+
+            setRolling();
+
+        });
+
+    </script>
+</body>
+</html>

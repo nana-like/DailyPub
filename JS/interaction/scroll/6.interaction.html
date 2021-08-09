@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Quattrocento+Sans:400,700&display=swap" rel="stylesheet">
+    <title>INTERACTION</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            font-family:'Quattrocento Sans', sans-serif;
+        }
+
+        .visual {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            background-color: rgb(75, 80, 147);
+        }
+
+        .visual .text {
+            display: inline-block;
+            margin: 0;
+            font-size: 0;
+            flex-direction: column;
+            padding: calc(5vh + 2vmin);
+            color: #fff;
+            font-size: calc(2vw + 10vmin);
+            text-transform: uppercase;
+            letter-spacing: -.5vmin;
+            font-weight: bold;
+        }
+
+        .visual .text__line {
+            position: relative;
+            display: block;
+        }
+
+        .visual .text__wrap {
+            overflow: hidden;
+            padding-left: 2vmin;
+            position: relative;
+            display: inline-block;
+        }
+
+        .text__main {
+            z-index: 1;
+            display: inline-block;
+            position: relative;
+            animation: textOpacity 1.3s .7s;
+            animation-fill-mode: backwards;
+            transition: .4s;
+        }
+
+        .text__mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: inline-block;
+            width: 100%;
+            height: 100%;
+            transform: translateX(-101%);
+            animation: mask 1.2s .3s;
+            transition:transform .5s cubic-bezier(0.24, 0.77, 0.32, 0.95);
+            background-color: #fff;
+        }
+
+        .text__wrap:after {
+            position: absolute;
+            left: 0;
+            bottom: 2vmin;
+            display: block;
+            content: '';
+            width: 100%;
+            height: 6vmin;
+            transform: translateX(-101%);
+            transition: .4s;
+            background-color: rgb(214, 186, 70);
+        }
+        .text__line:hover .text__main {
+            transform: translateX(-1vmin);
+        }
+        .text__line:hover .text__wrap:after {
+            transform: translateX(0);
+        }
+
+        @keyframes mask {
+            40% {
+                transform: translateX(0);
+            }
+            60% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(101%);
+            }
+        }
+
+        @keyframes textOpacity {
+            0% {
+                color:#3535ff;
+                opacity: 0;
+                transform: translateX(-40%);
+            }
+            30% {
+                opacity: 0;
+                color:#3535ff;
+            }
+            100% {
+                color: #fff;
+                opacity: 1;
+                transform: translateX(0%);
+            }
+        }
+    </style>
+</head>
+<body>
+    <section class="visual">
+        <div class="text">
+                <p class="text__line">
+                    <span class="text__wrap">
+                        <span class="text__main">JOURNEYS END</span>
+                        <span class="text__mask"></span>
+                    </span>
+                </p>
+                <p class="text__line">
+                    <span class="text__wrap">
+                        <span class="text__main">IN LOVERS</span>
+                        <span class="text__mask"></span>
+                    </span>
+                </p>
+            <p class="text__line">
+                <span class="text__wrap">
+                    <span class="text__main">MEETING</span>
+                    <span class="text__mask"></span>
+                </span>
+            </p>
+        </div>
+    </section>
+</body>
+</html>
